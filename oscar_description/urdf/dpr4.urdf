@@ -1,0 +1,57 @@
+<robot
+  name="drp4">
+  <link
+    name="dpr4_base_link">
+   <!-- <inertial>
+      <origin
+        xyz="0.154317894661027 -0.171653274550782 19.4044520777273"
+        rpy="0 0 0" />
+      <mass
+        value="58.7200210441329" />
+      <inertia
+        ixx="1.221164310186"
+        ixy="0.0202597551529128"
+        ixz="0.0102736914078772"
+        iyy="1.6606181171195"
+        iyz="-0.000642024699974461"
+        izz="0.557651825849937" /> 
+    </inertial> -->
+   <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="58.7200210441329" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" /> 
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://oscar_description/meshes/dpr4_base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://oscar_description/meshes/dpr4_base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

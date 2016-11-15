@@ -1,0 +1,43 @@
+<robot
+  name="OSCAR">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.135874216679112 0.286130168173884 -0.0974402892464957"
+        rpy="0 0 0" />
+      <mass
+        value="81.4616237556886" />
+      <inertia
+        ixx="9.92586702103313"
+        ixy="0.284546866012666"
+        ixz="2.0841773267857"
+        iyy="7.22653314618283"
+        iyz="-0.188391710489014"
+        izz="10.6501056934012" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://oscar_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://oscar_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+</robot>
