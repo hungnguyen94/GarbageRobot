@@ -4,7 +4,7 @@
     name="base_link">
     <inertial>
       <origin
-        xyz="0.135874216679112 0.286130168173884 -0.0974402892464957"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="81.4616237556886" />
@@ -21,8 +21,8 @@
         xyz="0 0 0"
         rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://oscar_description/meshes/base_link.STL" />
+        <!-- <mesh filename="package://oscar_description/meshes/base_link.STL" /> -->
+        <box size="0.4 0.5 0.9"/>
       </geometry>
       <material
         name="">
@@ -35,9 +35,94 @@
         xyz="0 0 0"
         rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://oscar_description/meshes/base_link.STL" />
+        <!-- <mesh filename="package://oscar_description/meshes/base_link.STL" /> -->
+        <box size="0.4 0.5 0.9"/>
       </geometry>
     </collision>
   </link>
+
+<link name="left-wheel">
+  <visual>
+      <origin rpy="-1.57075 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.5" radius="0.035"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+  </visual>
+  <collision>
+      <origin rpy="-1.57075 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.5" radius="0.035"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+  </collision>
+  <inertial>
+    <origin
+      xyz="0.0 0.0 0.0"
+      rpy="0 0 0" />
+    <mass
+      value="1" />
+    <inertia
+      ixx="0"
+      ixy="0"
+      ixz="0"
+      iyy="0"
+      iyz="0"
+      izz="0" />
+  </inertial>
+</link>
+
+<link name="right-wheel">
+  <visual>
+      <origin rpy="1.57075 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.5" radius="0.035"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+  </visual>
+  <collision>
+      <origin rpy="1.57075 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.5" radius="0.035"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+  </collision>
+  <inertial>
+    <origin
+      xyz="0.0 0.0 0.0"
+      rpy="0 0 0" />
+    <mass
+      value="1" />
+    <inertia
+      ixx="0"
+      ixy="0"
+      ixz="0"
+      iyy="0"
+      iyz="0"
+      izz="0" />
+  </inertial>
+</link>
+
+<joint name="left-wheel-joint" type="continuous">
+   <parent link="base_link"/>
+   <child link="left-wheel"/>
+   <axis xyz="0 1 0"/>
+   <origin xyz="0.2 0 -0.45"/>
+</joint>
+
+<joint name="right-wheel-joint" type="continuous">
+  <parent link="base_link"/>
+  <child link="right-wheel"/>
+  <axis xyz="0 1 0"/>
+  <origin xyz="-0.2 0 -0.45"/>
+</joint>
+
 </robot>
