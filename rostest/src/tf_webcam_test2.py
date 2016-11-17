@@ -11,9 +11,9 @@ import numpy as np
 import time
 import cv2
 
-FLAGS.model_dir = '/mnt/data/Development/ros/models'
+FLAGS.model_dir = '/mnt/data/Development/ros/catkin_ws/src/models'
 num_top_predictions = 7
-camera_index = 0
+camera_index = 1
 camera_resolution = (1280, 720)
 display_resolution = (640, 360)
 
@@ -63,7 +63,7 @@ def run_inference():
         human_string = node_lookup.id_to_string(node_id)
         score = predictions[node_id]
         result = '%.5f: %s' % (score, human_string)
-        if score < 0.09: 
+        if score < 0.40: 
           break
         cv2.putText(frame, result, (20, 50+20*i), font, 1.0, (255,150,0),2)
 
