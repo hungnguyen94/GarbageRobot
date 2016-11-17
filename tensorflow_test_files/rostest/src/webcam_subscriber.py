@@ -10,14 +10,14 @@ from cv_bridge import CvBridge, CvBridgeError
 class image_subscriber: 
 
   def __init__(self):
-    self.sub = rospy.Subscriber("image_topic", Image, self.callback)
+    self.sub = rospy.Subscriber("image_topic", Image, self.callback, queue_size=1)
     self.cv_bridge = CvBridge()
 
   def callback(self, img): 
     try:
       cv_image = self.cv_bridge.imgmsg_to_cv2(img)
-      cv2.imshow("Wall-E", cv_image)
-      cv2.waitKey(3)
+      cv2.imshow("Wall-A", cv_image)
+      cv2.waitKey(1)
     except CvBridgeError as e:
       print(e)
 
