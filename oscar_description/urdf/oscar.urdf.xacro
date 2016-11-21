@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- General -->
+  <xacro:include filename="$(find oscar_description)/urdf/body.urdf.xacro"/>
+  <xacro:include filename="$(find dpr4_description)/urdf/dpr4_description.urdf"/>
+
+  <joint name="body_to_base" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="body" />
+  </joint>
+
+</robot>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="body" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="body">
+    <inertial>
+      <origin xyz="0 0.27093 0.68573" rpy="0 0 0" />
+      <mass value="9.21868409" />
+      <inertia ixx="7.44436208" ixy="0.07077731" ixz="0.12801343" iyy="6.75324387" iyz="1.76635338" izz="1.08219559" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0.4 0.4" rpy="0 0 0" />
+      <geometry>
+        <box size="0.4 0.4 0.4"/>
+        <!-- <mesh filename="package://oscar_description/meshes/body.STL" /> -->
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0.4 0.4" rpy="0 0 0" />
+      <geometry>
+        <box size="0.4 0.4 0.4"/>
+        <!-- <mesh filename="package://oscar_description/meshes/body.STL" /> -->
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- <xacro:property name="camera_name" value="kinect" />
+  <xacro:property name="link_name" value="body" />
+  <xacro:property name="frame_name" value="body" />
+  <gazebo>
+  <plugin name="${link_name}_controller" filename="libgazebo_ros_openni_kinect.so">
+    <baseline>0.2</baseline>
+    <alwaysOn>true</alwaysOn>
+    <updateRate>1.0</updateRate>
+    <cameraName>${camera_name}_ir</cameraName>
+    <imageTopicName>/${camera_name}/depth/image_raw</imageTopicName>
+    <cameraInfoTopicName>/${camera_name}/depth/camera_info</cameraInfoTopicName>
+    <depthImageTopicName>/${camera_name}/depth/image_raw</depthImageTopicName>
+    <depthImageInfoTopicName>/${camera_name}/depth/camera_info</depthImageInfoTopicName>
+    <pointCloudTopicName>/${camera_name}/depth/points</pointCloudTopicName>
+    <frameName>${frame_name}</frameName>
+    <pointCloudCutoff>0.5</pointCloudCutoff>
+    <distortionK1>0.00000001</distortionK1>
+    <distortionK2>0.00000001</distortionK2>
+    <distortionK3>0.00000001</distortionK3>
+    <distortionT1>0.00000001</distortionT1>
+    <distortionT2>0.00000001</distortionT2>
+    <CxPrime>0</CxPrime>
+    <Cx>0</Cx>
+    <Cy>0</Cy>
+    <focalLength>0</focalLength>
+    <hackBaseline>0</hackBaseline>
+  </plugin>
+</gazebo> -->
+</robot>
