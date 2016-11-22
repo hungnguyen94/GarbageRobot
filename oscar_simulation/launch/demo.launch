@@ -1,44 +1,22 @@
 <launch>
-  <arg name="gui" default="true"/>
-  <arg name="world_file" default="$(find oscar_simulation)/worlds/empty.world"/>
-  <arg name="urdf_file" default="$(find oscar_description)/urdf/oscar.urdf" />
-
+    <!-- <include file="$(find gazebo_ros)/launch/empty_world.launch" /> -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="use_sim_time" value="true"/>
-    <arg name="debug" value="false"/>
-    <arg name="gui" value="$(arg gui)" />
-    <arg name="world_name" value="$(arg world_file)"/>
+    <arg name="world_name" value="$(find oscar_simulation)/worlds/empty.world"/>
+    <!-- more default parameters can be changed here -->
   </include>
 
-  <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager">
+  <!-- <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager">
     <param name="output_frame_id" value="/camera_depth_frame"/>
     <param name="range_min" value="0.45"/>
     <remap from="image" to="/camera/depth/image_raw"/>
     <remap from="scan" to="/scan"/>
-  </node>
+  </node> -->
 
   <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 40" />
-  <param name="robot_description" command="$(find xacro)/xacro.py $(find oscar_description)/urdf/oscar.urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/oscar.urdf.xacro" />
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model oscar" />
-  <!-- <node
-    name="spawn_model"
-    pkg="gazebo_ros"
-    type="spawn_model"
-    args="-file $(arg urdf_file) -pause -urdf -model oscar1"
-    output="screen" /> -->
-  <node
-    name="fake_joint_calibration"
-    pkg="rostopic"
-    type="rostopic"
-    args="pub /calibrated std_msgs/Bool true" />
+  <node name="fake_joint_calibration" pkg="rostopic" type="rostopic" args="pub /calibrated std_msgs/Bool true" />
 
-
-
-  <arg name="base" default="kobuki"/>
-  <arg name="stacks" default="hexagons"/>
-  <arg name="3d_sensor" default="kinect"/>
-
-  <arg name="urdf_file2" default="$(find xacro)/xacro.py '$(find turtlebot_description)/robots/$(arg base)_$(arg stacks)_$(arg 3d_sensor).urdf.xacro'" />
 
   <!-- RVIZ -->
   <arg name="rvizconfig" default="$(find oscar_simulation)/urdf.rviz" />
