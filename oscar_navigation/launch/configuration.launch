@@ -3,6 +3,8 @@
   <!-- <node pkg="sensor_node_pkg" type="sensor_node_type" name="sensor_node_name" output="screen">
     <param name="sensor_param" value="param_value" />
   </node> -->
+  <!-- TODO add kinect sensor -->
+  <!-- TODO add sonar sensors -->
 
 <!-- The odometry node -->
   <!-- <node pkg="odom_node_pkg" type="odom_node_type" name="odom_node" output="screen">
