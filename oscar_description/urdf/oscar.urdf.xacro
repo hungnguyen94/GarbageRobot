@@ -2,7 +2,23 @@
 <robot name="oscar" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- General -->
   <xacro:include filename="$(find oscar_description)/urdf/body.urdf.xacro"/>
-  <xacro:include filename="$(find dpr4_description)/urdf/dpr4_description.urdf"/>
+  <xacro:include filename="$(find dpr4_description)/urdf/dpr4_description.urdf.xacro"/>
+
+  <gazebo>
+  <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+    <alwaysOn>true</alwaysOn>
+    <updateRate>100</updateRate>
+    <leftJoint>front_wheel_left_joint</leftJoint>
+    <rightJoint>front_wheel_right_joint</rightJoint>
+    <wheelSeparation>0.5380</wheelSeparation>
+    <wheelDiameter>0.2410</wheelDiameter>
+    <torque>20</torque>
+    <commandTopic>cmd_vel</commandTopic>
+    <odometryTopic>odom</odometryTopic>
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>base_link</robotBaseFrame>
+  </plugin>
+</gazebo>
 
   <joint name="body_to_base" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
