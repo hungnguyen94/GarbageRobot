@@ -4,7 +4,7 @@
   <xacro:include filename="$(find oscar_description)/urdf/body.urdf.xacro"/>
   <xacro:include filename="$(find dpr4_description)/urdf/dpr4_description.urdf.xacro"/>
 
-  <gazebo>
+  <!-- <gazebo>
   <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
     <alwaysOn>true</alwaysOn>
     <updateRate>100</updateRate>
@@ -17,8 +17,9 @@
     <odometryTopic>odom</odometryTopic>
     <odometryFrame>odom</odometryFrame>
     <robotBaseFrame>base_link</robotBaseFrame>
+    <legacyMode>false</legacyMode>
   </plugin>
-</gazebo>
+</gazebo> -->
 
   <joint name="body_to_base" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
