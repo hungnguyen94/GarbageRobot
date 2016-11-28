@@ -1,0 +1,7 @@
+<launch>
+  <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  </node> -->
+  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap">
+   <param name="RGBD/OptimizeIterations" type="string" value="50"/>
+</node>
+</launch>

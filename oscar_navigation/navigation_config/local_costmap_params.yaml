@@ -1,0 +1,19 @@
+local_costmap:
+  # The coordinate frame the costmap should run in
+  global_frame: odom
+  # The base frame at which the robot should be referenced
+  robot_base_frame: base_link
+  # The loop speed in Hz
+  update_frequency: 5.0
+  # The rate, in Hz, at which the costmap will publish visualization information
+  publish_frequency: 2.0
+  # True if using an existing map
+  static_map: false
+  # True means the costmap keeps centered on the robot
+  rolling_window: true
+  # In meters
+  width: 6.0
+  # In meters
+  height: 6.0
+  # In meters/cell
+  resolution: 0.05

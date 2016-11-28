@@ -1,0 +1,9 @@
+global_costmap:
+  # The coordinate frame the costmap should run in
+  global_frame: /map
+  # The base frame at which the robot should be referenced
+  robot_base_frame: base_link
+  # The loop speed in Hz
+  update_frequency: 5.0
+  # True if using an existing map
+  static_map: true
