@@ -163,3 +163,11 @@ RUN mkdir -p /opencv-3.1.0/build && \
 
 WORKDIR "/notebooks"
 CMD ["/run_jupyter.sh"]
+
+# ROS kinect packages
+RUN apt-get update && apt-get -y install ros-kinetic-openni-* \
+      ros-kinetic-freenect* && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 11311
