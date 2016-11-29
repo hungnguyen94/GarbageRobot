@@ -2,7 +2,9 @@
 <robot name="oscar" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- General -->
   <xacro:include filename="$(find oscar_description)/urdf/body.urdf.xacro"/>
+
   <xacro:include filename="$(find dpr4_description)/urdf/dpr4_description.urdf.xacro"/>
+  <xacro:dpr4 name="base_link"/>
 
   <gazebo>
   <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
