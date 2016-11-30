@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<robot name="oscar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:include filename="$(find oscar_description)/urdf/oscar.urdf.xacro"/>
+<xacro:include filename="$(find hector_sensors_description)/urdf/kinect_camera.urdf.xacro"/>
+<xacro:include filename="$(find hector_xacro_tools)/urdf/inertia_tensors.urdf.xacro"/>
+<xacro:kinect_camera_model name="habadabaduba_frame" parent="base_link" >
+  <origin xyz="0 0 0.73" rpy="0 0 ${1.5*M_PI}" />
+</xacro:kinect_camera_model>
+<xacro:kinect_camera name="habadabaduba" parent="base_link" >
+  <origin xyz="0 0 0.73" rpy="0 0 ${1.5*M_PI}" />
+</xacro:kinect_camera>
+<xacro:oscar />
+
+
+<gazebo>
+<plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+  <alwaysOn>true</alwaysOn>
+  <updateRate>10</updateRate>
+  <leftJoint>front_wheel_left_joint</leftJoint>
+  <rightJoint>front_wheel_right_joint</rightJoint>
+  <wheelSeparation>0.5380</wheelSeparation>
+  <wheelDiameter>0.2410</wheelDiameter>
+  <torque>20</torque>
+  <commandTopic>cmd_vel</commandTopic>
+  <odometryTopic>odom</odometryTopic>
+  <odometryFrame>odom</odometryFrame>
+  <robotBaseFrame>base_link</robotBaseFrame>
+  <legacyMode>false</legacyMode>
+  <odometrySource>true</odometrySource>
+</plugin>
+</gazebo>
+
+</robot>
