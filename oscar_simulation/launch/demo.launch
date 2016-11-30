@@ -11,19 +11,10 @@
   </node> -->
 
   <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 40" />
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/oscar.urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/robots/oscar_kinect.urdf.xacro" />
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model oscar" />
   <node name="fake_joint_calibration" pkg="rostopic" type="rostopic" args="pub /calibrated std_msgs/Bool true" />
-  <!-- <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan" name="pointcloud_to_laserscan">
-    <remap from="cloud_in" to="/kinect/depth/points"/>
-  </node> -->
-  <!-- <include file="$(find oscar_navigation)/launch/create_map.launch"/> -->
-  <!-- <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
-  <remap from="image" to="/kinect/depth/image_raw"/>
-  <remap from="camera_info" to="/kinect/depth/camera_info"/>
-</node> -->
-  <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-  </node> -->
+
 
 
 
@@ -48,13 +39,12 @@
 
 
 
-
   <!-- RVIZ -->
-  <!-- <arg name="rvizconfig" default="$(find oscar_simulation)/urdf.rviz" />
+  <arg name="rvizconfig" default="$(find oscar_simulation)/urdf.rviz" />
 
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
 
 
 </launch>
