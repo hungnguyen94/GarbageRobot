@@ -9,7 +9,9 @@
 </launch> -->
 
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/urdf/oscar.urdf.xacro" />
+  <arg name="robot" default="oscar_no_sensors"/>
+  <arg name="urdf_file" default="$(find oscar_description)/robots/$(arg robot).urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg urdf_file)" />
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
     <param name="use_gui" value="true" />
   </node>
