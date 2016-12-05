@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot name="body" xmlns:xacro="http://ros.org/wiki/xacro"  xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor">
   <xacro:macro name="oscar_body" params="name">
-    <!-- <include filename="$(find oscar_description)/urdf/sensors/sonar.urdf.xacro" /> -->
     <link name="${name}">
       <inertial>
         <origin xyz="-0.27093 0 0.68573" rpy="0 0 0" />
