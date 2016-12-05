@@ -1,0 +1,18 @@
+<launch>
+  <node pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="-d ~/.ros/rtabmap_gui.ini" output="screen" launch-prefix="">
+   <param name="subscribe_depth"      type="bool" value="true"/>
+   <param name="subscribe_stereo"     type="bool"   value="false"/>
+   <param name="subscribe_scan"       type="bool"   value="true"/>
+   <param name="subscribe_scan_cloud" type="bool"   value="false"/>
+   <param name="subscribe_odom_info"  type="bool"   value="true"/>
+   <param name="frame_id"             type="string" value="base_link"/>
+   <param name="odom_frame_id"        type="string" value="odom"/>
+   <param name="wait_for_transform_duration" type="double"   value="0.2"/>
+   <param name="queue_size"           type="int" value="10"/>
+
+   <remap from="rgb/image" to="/kinect/rgb/image_raw"/>
+   <remap from="depth/image" to="/kinect/depth/image_raw"/>
+   <remap from="rgb/camera_info" to="/kinect/rgb/camera_info"/>
+   <remap from="scan" to="/kinect_scan"/>
+  </node> 
+</launch>

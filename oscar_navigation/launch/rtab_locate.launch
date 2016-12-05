@@ -10,7 +10,7 @@
   <!-- SLAM -->
   <group ns="rtabmap">
     <include file="$(find oscar_navigation)/launch/includes/rtabmap_node.launch">
-        <arg name="args" value="--delete_db_on_start" />
+        <arg name="args" value="" />
     </include>
   </group>
 </launch>

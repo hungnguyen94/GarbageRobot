@@ -16,4 +16,4 @@ local_costmap:
   # In meters
   height: 6.0
   # In meters/cell
-  resolution: 0.05
+  resolution: 0.1
