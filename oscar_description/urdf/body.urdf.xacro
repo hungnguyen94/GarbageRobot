@@ -4,18 +4,18 @@
     <!-- <include filename="$(find oscar_description)/urdf/sensors/sonar.urdf.xacro" /> -->
     <link name="${name}">
       <inertial>
-        <origin xyz="0 0.27093 0.68573" rpy="0 0 0" />
+        <origin xyz="-0.27093 0 0.68573" rpy="0 0 0" />
         <mass value="9.21868409" />
-        <inertia ixx="0.6" ixy="0" ixz="0" iyy="0.6" iyz="0" izz="0.24" />
+        <inertia iyy="0.6" ixy="0" ixz="0" ixx="0.6" iyz="0" izz="0.24" />
       </inertial>
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 1.57" />
         <geometry>
           <mesh filename="package://oscar_description/meshes/body.STL" />
         </geometry>
       </visual>
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 1.57" />
         <geometry>
           <mesh filename="package://oscar_description/meshes/body.STL" />
         </geometry>
