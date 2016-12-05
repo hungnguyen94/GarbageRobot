@@ -1,50 +1,14 @@
 <launch>
-  <include file="$(find gazebo_ros)/launch/willowgarage_world.launch">
-    <!-- <arg name="world_name" value="$(find oscar_simulation)/worlds/empty.world"/> -->
-  </include>
+<!-- SIMULATION -->
+  <include file="$(find oscar_simulation)/launch/spawn_oscar.launch" />
 
-  <!-- <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager">
-    <param name="output_frame_id" value="/camera_depth_frame"/>
-    <param name="range_min" value="0.45"/>
-    <remap from="image" to="/camera/depth/image_raw"/>
-    <remap from="scan" to="/scan"/>
-  </node> -->
+  <!-- LOCALIZATION -->
+  <include file="$(find oscar_navigation)/launch/localization/amcl.launch" />\
 
-  <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 40" />
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/robots/oscar_kinect.urdf.xacro" />
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model oscar" />
-  <node name="fake_joint_calibration" pkg="rostopic" type="rostopic" args="pub /calibrated std_msgs/Bool true" />
+  <!-- ROUTE PLANNING -->
+  <include file="$(find oscar_navigation)/launch/move_base.launch" />\
 
-
-
-
-  <!-- <include file="$(find rtabmap_ros)/launch/rgbd_mapping.launch" >
-    <arg name="rtabmap_args"            value="delete_db_on_start"/>
-    <arg name="localization"            value="false"/>
-    <arg name="rviz"                    value="false" />
-    <arg name="rtabmapviz"              value="true" />
-
-    <arg name="frame_id"                value="kinect_link"/>
-    <arg name="rgb_topic"               value="/kinect/rgb/image_raw" />
-    <arg name="depth_registered_topic"  value="/kinect/depth/image_raw" />
-    <arg name="camera_info_topic"       value="/kinect/depth/camera_info" />
-    <arg name="subscribe_scan"          value="false"/>
-    <arg name="scan_topic"              value="/scan"/>
-    <arg name="visual_odometry"         value="true"/>
-    <arg name="odom_topic"              value="/rtabmap/odom"/>
-
-  </include> -->
-
-    
-
-
-
-  <!-- RVIZ -->
-  <arg name="rvizconfig" default="$(find oscar_simulation)/urdf.rviz" />
-
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
-
+  <!-- DEBUG/MONITORING TOOLS -->
+  <include file="$(find oscar_simulation)/launch/openrviz.launch" />
 
 </launch>
