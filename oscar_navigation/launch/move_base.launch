@@ -10,5 +10,6 @@
     <rosparam file="$(find oscar_navigation)/navigation_config/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find oscar_navigation)/navigation_config/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find oscar_navigation)/navigation_config/base_local_planner_params.yaml" command="load" />
+    <param name="controller_frequency" value="10" />
   </node>
 </launch>
