@@ -9,9 +9,9 @@
   </include>
 
 
-  <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 40" />
+  <!-- <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 40" /> -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find oscar_description)/robots/oscar_kinect.urdf.xacro" />
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model oscar" >
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model oscar -x 1 -y 9 -Y 0" >
     <remap from="kinect/rgb/image_raw" to="kinect/rgb/image_raw"/>
     <remap from="kinect/rgb/camera_info" to="kinect/rgb/camera_info"/>
     <remap from="kinect/depth/image_raw" to="kinect/depth/image_raw"/>
