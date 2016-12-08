@@ -1,10 +1,13 @@
 <launch>
   <arg name="args">
   </arg>
+  <arg name="scan_topic" default="/kinect_scan" />
+  <arg name="localization" default="false" />
+
 
   <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg args)">
         <param name="frame_id" type="string" value="base_link"/>
-        <param name="localization" value="true"/>
+        <param name="localization" value="$(arg localization)"/>
 
         <param name="subscribe_depth" type="bool" value="true"/>
         <param name="subscribe_scan" type="bool" value="true"/>
