@@ -1,17 +1,13 @@
-// #include <ros.h>
-// #include <std_msgs/String.h>
+#include <ros.h>
+#include <ros/time.h>
+#include <sensor_msgs/Range.h>
 
-/*
- HC-SR04 Ping distance sensor]
- VCC to arduino 5v GND to arduino GND
- Echo to Arduino pin 13 Trig to Arduino pin 12
- Red POS to Arduino pin 11
- Green POS to Arduino pin 10
- 560 ohm resistor to both LED NEG and GRD power rail
- More info at: http://goo.gl/kJ8Gl
- Original code improvements to the Ping sketch sourced from Trollmaker.com
- Some code and wiring inspired by http://en.wikiversity.org/wiki/User:Dstaub/robotcar
- */
+ros::NodeHandle  nh;
+
+
+sensor_msgs::Range range_msg;
+ros::Publisher pub_range( "range_data", &range_msg);
+char frameid[] = "/sonar_test";
 
 #define trigPin 2
 #define echoPin 3
@@ -20,25 +16,42 @@ void setup() {
   Serial.begin (9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  setupRos();
+
 }
 
-void loop() {
+void setupRos() {
+  nh.initNode();
+  nh.advertise(pub_range);
+  
+  range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg.header.frame_id =  frameid;
+  range_msg.field_of_view = 0.15;
+  range_msg.min_range = 0.03;
+  range_msg.max_range = 0.4;
+}
+
+float getRange(int trig, int echo) {
   long duration, distance;
-  digitalWrite(trigPin, LOW);  // Added this line
+  digitalWrite(trig, LOW);  // Added this line
   delayMicroseconds(2); // Added this line
-  digitalWrite(trigPin, HIGH);
+  digitalWrite(trig, HIGH);
   //  delayMicroseconds(1000); - Removed this line
   delayMicroseconds(10); // Added this line
-  digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
+  digitalWrite(trig, LOW);
+  duration = pulseIn(echo, HIGH);
   distance = (duration / 58.2);
-  
-  if (distance >= 200 || distance <= 0){
-    Serial.println("Out of range");
+  return distance;
+}
+
+long range_time;
+void loop() {
+  if ( millis() >= range_time ){
+    getRange(trigPin,echoPin);
+    range_msg.range = getRange(trigPin,echoPin);
+    range_msg.header.stamp = nh.now();
+    pub_range.publish(&range_msg);
+    nh.spinOnce();
+    range_time =  millis() + 500;
   }
-  else {
-    Serial.print(distance);
-    Serial.println(" cm");
-  }
-  delay(500);
 }
