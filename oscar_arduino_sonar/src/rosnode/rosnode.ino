@@ -44,14 +44,19 @@ float getRange(int trig, int echo) {
   return distance;
 }
 
+
+void publishToROS(char frameid[] frame, float range) {
+   range_msg.header.frame_id = frame; 
+   range_msg.range = range;
+   range_msg.header.stamp = nh.now();
+   pub_range.publish(&range_msg);
+   nh.spinOnce();
+}
 long range_time;
 void loop() {
   if ( millis() >= range_time ){
-    getRange(trigPin,echoPin);
-    range_msg.range = getRange(trigPin,echoPin);
-    range_msg.header.stamp = nh.now();
-    pub_range.publish(&range_msg);
-    nh.spinOnce();
+    float range = getRange(trigPin,echoPin);
+    publishToROS(frameid,range);      
     range_time =  millis() + 500;
   }
 }
