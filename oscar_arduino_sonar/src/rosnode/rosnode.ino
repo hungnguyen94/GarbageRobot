@@ -17,40 +17,45 @@ char frameid_rav[] = "/oscar/sonar_rav";
 char frameid_raa[] = "/oscar/sonar_raa";
 
 //WHITE
-#define lv_trig 0
-#define lv_echo 1
+#define lav_trig 0
+#define lav_echo 1
 //GREY
-#define rv_trig 2
-#define rv_echo 3
+#define laa_trig 2
+#define laa_echo 3
 //GREEN
-#define lm_trig 4
-#define lm_echo A1
+#define raa_trig 4
+#define raa_echo A1
 //BLUE
-#define rm_trig 5
-#define rm_echo A0
+#define rav_trig 5
+#define rav_echo A0
 //YELLOW
-#define lav_trig 6
-#define lav_echo 7
+#define lv_trig 6
+#define lv_echo 7
 //ORANGE
-#define laa_trig 8
-#define laa_echo 9
+#define lm_trig 8
+#define lm_echo 9
 //RED
-#define rav_trig 10
-#define rav_echo 11
+#define rm_trig 10
+#define rm_echo 11
 //BLACK
-#define raa_trig 12
-#define raa_echo 13
+#define rv_trig 12
+#define rv_echo 13
 
 int trigger[] = {
   lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
 int echos[] = {
   lv_echo, rv_echo, rm_echo, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo};
+char* frames[] = {
+  frameid_lv, frameid_rv, frameid_rm, frameid_rav, frameid_raa, frameid_laa, frameid_lav, frameid_lm
+};
 
 
 void setup() {
   Serial.begin (9600);
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+  for(int i = 0; i < 8 ; i++) {
+    pinMode(trigger[i], OUTPUT);
+    pinMode(echos[i], INPUT);
+  }
   setupRos();
 
 }
@@ -60,7 +65,6 @@ void setupRos() {
   nh.advertise(pub_range);
 
   range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
-  range_msg.header.frame_id =  frameid;
   range_msg.field_of_view = 0.15;
   range_msg.min_range = 0.03;
   range_msg.max_range = 0.4;
@@ -80,8 +84,8 @@ float getRange(int trig, int echo) {
 }
 
 
-void publishToROS(char frameid[] frame, float range) {
-  range_msg.header.frame_id = frame; 
+void publishToROS(char framee[], float range) {
+  range_msg.header.frame_id = framee; 
   range_msg.range = range;
   range_msg.header.stamp = nh.now();
   pub_range.publish(&range_msg);
@@ -93,8 +97,8 @@ void loop() {
   for(int i = 0; i < 8; i++){
     if ( millis() >= range_time ){
       float range = getRange(trigger[i],echos[i]);
-      publishToROS(frameid,range);      
-      range_time =  millis() + 500;
+      publishToROS(frameid_lv,range);      
+      range_time =  millis() + 300;
     }
   }
 }
