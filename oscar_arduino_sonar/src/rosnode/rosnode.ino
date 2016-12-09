@@ -41,8 +41,10 @@ char frameid_raa[] = "/oscar/sonar_raa";
 #define raa_trig 12
 #define raa_echo 13
 
-int trigger[] = {lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
-int echos[] = {lv_echo, rv_echo, rm_echo, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo};
+int trigger[] = {
+  lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
+int echos[] = {
+  lv_echo, rv_echo, rm_echo, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo};
 
 
 void setup() {
@@ -56,7 +58,7 @@ void setup() {
 void setupRos() {
   nh.initNode();
   nh.advertise(pub_range);
-  
+
   range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
   range_msg.header.frame_id =  frameid;
   range_msg.field_of_view = 0.15;
@@ -79,17 +81,21 @@ float getRange(int trig, int echo) {
 
 
 void publishToROS(char frameid[] frame, float range) {
-   range_msg.header.frame_id = frame; 
-   range_msg.range = range;
-   range_msg.header.stamp = nh.now();
-   pub_range.publish(&range_msg);
-   nh.spinOnce();
+  range_msg.header.frame_id = frame; 
+  range_msg.range = range;
+  range_msg.header.stamp = nh.now();
+  pub_range.publish(&range_msg);
+  nh.spinOnce();
 }
+
 long range_time;
 void loop() {
-  if ( millis() >= range_time ){
-    float range = getRange(trigPin,echoPin);
-    publishToROS(frameid,range);      
-    range_time =  millis() + 500;
+  for(int i = 0; i < 8; i++){
+    if ( millis() >= range_time ){
+      float range = getRange(trigger[i],echos[i]);
+      publishToROS(frameid,range);      
+      range_time =  millis() + 500;
+    }
   }
 }
+
