@@ -17,11 +17,11 @@ char frameid_rav[] = "/oscar/sonar_rav";
 char frameid_raa[] = "/oscar/sonar_raa";
 
 //WHITE
-#define lav_trig 0
-#define lav_echo 1
+#define lav_trig 3
+#define lav_echo A2
 //GREY
-#define laa_trig 2
-#define laa_echo 3
+#define laa_trig 4
+#define laa_echo A3
 //GREEN
 #define raa_trig 4
 #define raa_echo A1
@@ -66,25 +66,26 @@ void setupRos() {
 
   range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
   range_msg.field_of_view = 0.15;
-  range_msg.min_range = 0.03;
-  range_msg.max_range = 0.4;
+  range_msg.min_range = 0.00;
+  range_msg.max_range = 1000.4;
 }
 
 float getRange(int trig, int echo) {
-  long duration, distance;
+  long duration;
+  float distance;
   digitalWrite(trig, LOW);  // Added this line
   delayMicroseconds(2); // Added this line
   digitalWrite(trig, HIGH);
   //  delayMicroseconds(1000); - Removed this line
   delayMicroseconds(10); // Added this line
   digitalWrite(trig, LOW);
-  duration = pulseIn(echo, HIGH);
-  distance = (duration / 58.2);
+  duration = float(pulseIn(echo, HIGH));
+  distance = duration / 5820.0;
   return distance;
 }
 
 
-void publishToROS(char framee[], float range) {
+void publishToROS(char* framee, float range) {
   range_msg.header.frame_id = framee; 
   range_msg.range = range;
   range_msg.header.stamp = nh.now();
@@ -97,8 +98,8 @@ void loop() {
   for(int i = 0; i < 8; i++){
     if ( millis() >= range_time ){
       float range = getRange(trigger[i],echos[i]);
-      publishToROS(frameid_lv,range);      
-      range_time =  millis() + 300;
+      publishToROS(frames[i],range);      
+      range_time =  millis() + 150;
     }
   }
 }
