@@ -7,7 +7,7 @@
   <include file="$(find oscar_navigation)/launch/localization/amcl.launch" />
 
   <!-- ROUTE PLANNING -->
-  <include file="$(find oscar_navigation)/launch/move_base.launch" />\
+  <include file="$(find oscar_navigation)/launch/move_base.launch" />
 
   <!-- DEBUG/MONITORING TOOLS -->
   <include file="$(find oscar_simulation)/launch/openrviz.launch" />

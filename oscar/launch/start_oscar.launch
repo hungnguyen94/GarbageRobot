@@ -1,0 +1,61 @@
+<launch>
+  <!-- Location of the map to navigate in -->
+  <arg name="map_location" value="$(find oscar_navigation)/map/map1.pgm" />
+  <!-- The resolution of the map defined in $(arg map_location) -->
+  <arg name="map_resolution" value="0.05"/>
+  <!-- The topic to publish the map on -->
+  <arg name="map_topic"  value="/map"/>
+  <!-- The topic to publish the map metadata on -->
+  <arg name="map_metadata_topic"  value="/map_metadata"/>
+  <!-- The frame to use for the map -->
+  <arg name="map_frame" value="/map" />
+  <!-- The topic the scan data (converted from the kinect depthimages) will be published on -->
+  <arg name="scan_topic" value="/kinect_scan"/>
+  <!-- The frame to use for the scan data -->
+  <arg name="scan_frame" value="/kinect_link"/>
+  <!-- The topic the kinect depth camera info messages will be published on -->
+  <arg name="camera_depth_info_topic" value="/kinect/depth/camera_info"/>
+  <!-- The topic the kinect depth images will be published on -->
+  <arg name="camera_depth_image_topic" value="/kinect/depth/image_raw"/>
+  <!-- The frame to use for the odomotry of the robot -->
+  <arg name="odom_frame" value="/odom"/>
+  <!-- Topic to send the movement commands for the base over -->
+  <arg name="cmd_vel_topic" value="/cmd_vel"/>
+
+
+  <group name="navigation">
+    <!-- Publish map data -->
+    <include file="$(find oscar_navigation)/launch/map_server.launch" >
+      <arg name="map_location" value="$(arg map_location)"/>
+      <arg name="map_resolution" value="$(arg map_resolution)"/>
+      <arg name="map_topic"  value="$(arg map_topic)"/>
+      <arg name="map_metadata_topic"  value="$(arg map_metadata)"/>
+      <arg name="map_frame" value="$(arg map_frame)" />
+    </include>
+    
+    <!-- Localization -->
+    <include file="$(find oscar_navigation)/launch/localization/amcl.launch" >
+      <arg name="scan_topic" value="$(arg scan_topic)"/>
+      <arg name="scan_frame" value="$(arg scan_frame)"/>
+      <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
+      <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
+      <arg name="odom_frame" value="$(arg odom_frame)"/>
+    </include>
+
+    <!-- Generating navigation goals -->
+    <!-- TODO make and add node to generate navigation goals -->
+
+    <!-- Converting navigation goals to twist messages -->
+    <include file="$(find oscar_navigation)/launch/move_base.launch" >
+      <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
+    </include>
+
+    <!-- Converting twist messages to motor commands -->
+    <!-- TODO add basecontroller -->
+
+  </group>
+
+
+
+
+</launch>
