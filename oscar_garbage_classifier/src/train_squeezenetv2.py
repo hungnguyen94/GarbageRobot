@@ -55,14 +55,12 @@ def load_image(img_path):
 # List comprehension returns list of tuples (image_path, classification)
 imgpaths_classes = [ (load_image(os.path.join(subdir, f)), class_mapping[os.path.basename(subdir)]) 
                         for subdir, dirs, files in os.walk(images_dir) 
-                            for f in files if f.endswith('.jpg')]
+                            for f in files if f.endswith('.jpg')][0:50]
 # Randomize it. 
 random.shuffle(imgpaths_classes)
 
 images, classes = zip(*imgpaths_classes)
 classes = to_categorical(classes, nb_classes=nb_classes)
-print len(images)
-print type(images)
 images = np.asarray(images)
 
 print('Loading model..')
