@@ -7,7 +7,7 @@ from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import os
-import ImageOps
+import cv2
 import random
 
 images_dir = './images'
@@ -61,9 +61,12 @@ random.shuffle(imgpaths_classes)
 
 images, classes = zip(*imgpaths_classes)
 classes = to_categorical(classes, nb_classes=nb_classes)
+print len(images)
+print type(images)
+images = np.asarray(images)
 
 print('Loading model..')
-model = SqueezeNet(nb_classes)
+model = SqueezeNet(nb_classes, input_shape=(227, 227, 3))
 model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['accuracy', 'categorical_crossentropy'])
 if os.path.isfile(weights_file):
     print('Loading weights: %s' % weights_file)
