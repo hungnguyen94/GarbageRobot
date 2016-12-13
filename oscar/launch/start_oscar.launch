@@ -29,7 +29,7 @@
 
   </group>
 
-  <group name="sensors">
+  <group ns="sensors">
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
@@ -44,7 +44,7 @@
     <!-- TODO -->
   </group>
 
-  <group if="$(arg launch_navigation)" name="navigation">
+  <group if="$(arg launch_navigation)" ns="navigation">
       <!-- Publish map data -->
     <include file="$(find oscar_navigation)/launch/map_server.launch" >
       <arg name="map_location" value="$(arg map_location)"/>
@@ -76,7 +76,7 @@
 
   </group>
 
-  <group if="$(arg launch_classification)" name="garbage_classification">
+  <group if="$(arg launch_classification)" ns="garbage_classification">
 
   </group>
 
