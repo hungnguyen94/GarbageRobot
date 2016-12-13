@@ -25,7 +25,7 @@
   <!-- Topic to send the movement commands for the base over -->
   <arg name="cmd_vel_topic" value="/cmd_vel"/>
 
-  <group name="state_control">
+  <group ns="state_control">
 
   </group>
 
