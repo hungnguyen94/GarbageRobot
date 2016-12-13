@@ -1,4 +1,7 @@
 <launch>
+  <arg name="launch_navigation" value="false" />
+  <arg name="launch_classification" value="false" />
+
   <!-- Location of the map to navigate in -->
   <arg name="map_location" value="$(find oscar_navigation)/map/map1.pgm" />
   <!-- The resolution of the map defined in $(arg map_location) -->
@@ -33,7 +36,7 @@
     <!-- TODO add node publishing the sonar transforms -->
 
     <!-- Kinect -->
-    <
+
     <!-- Fill level sensors -->
     <!-- TODO -->
 
@@ -41,7 +44,7 @@
     <!-- TODO -->
   </group>
 
-  <group name="navigation">
+  <group if="$(arg launch_navigation)" name="navigation">
       <!-- Publish map data -->
     <include file="$(find oscar_navigation)/launch/map_server.launch" >
       <arg name="map_location" value="$(arg map_location)"/>
@@ -73,7 +76,7 @@
 
   </group>
 
-  <group name="garbage_classification">
+  <group if="$(arg launch_classification)" name="garbage_classification">
 
   </group>
 
