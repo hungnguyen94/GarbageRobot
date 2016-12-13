@@ -45,4 +45,4 @@ RUN mkdir -p /opencv-3.1.0/build && \
     rm -rf /opencv-3.1.0
 ### END OpenCV installation ###
 
-RUN pip install keras
+RUN pip install keras h5py pillow 
