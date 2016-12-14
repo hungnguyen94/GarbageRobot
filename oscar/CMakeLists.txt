@@ -4,7 +4,14 @@ project(oscar)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  
+roscpp
+  rospy
+  tf
+ 
+)
+include_directories(${catkin_INCLUDE_DIRS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -179,3 +186,10 @@ catkin_package(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(sonarframe_broadcaster src/cpp/sonarframe_broadcaster.cpp)
+target_link_libraries(sonarframe_broadcaster ${catkin_LIBRARIES})
+
+
+
+
