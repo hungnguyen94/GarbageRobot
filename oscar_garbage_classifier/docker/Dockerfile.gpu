@@ -1,0 +1,48 @@
+FROM tensorflow/tensorflow:latest-gpu
+
+# setup environment
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+WORKDIR "/notebooks"
+CMD ["/run_jupyter.sh"]
+
+### OpenCV installation ###
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git build-essential cmake unzip wget \
+        python-dev python-tk python-numpy \
+        zlib1g-dev libjpeg-dev libwebp-dev libpng-dev libtiff5-dev libjasper-dev libopenexr-dev libgdal-dev \
+        libdc1394-22-dev libavcodec-dev libavformat-dev libswscale-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev yasm libopencore-amrnb-dev libopencore-amrwb-dev libv4l-dev libxine2-dev \
+        libtbb-dev libeigen3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+        
+# Download OpenCV 3.1.0 source
+RUN git clone https://github.com/daveselinger/opencv.git /opencv-3.1.0/ && \
+    git checkout 3.1.0-with-cuda8 && \
+    wget -O opencv_contrib-3.1.0.tar.gz https://github.com/opencv/opencv_contrib/archive/3.1.0.tar.gz && \
+    tar -C / -xzf opencv_contrib-3.1.0.tar.gz && \
+    rm opencv_contrib-3.1.0.tar.gz \
+
+# Build from source and tnstall OpenCV 3.1.0
+RUN mkdir -p /opencv-3.1.0/build && \
+    cd /opencv-3.1.0/build && \
+    cmake -DCMAKE_BUILD_TYPE=RELEASE \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DWITH_OPENGL=ON -DWITH_TBB=ON -DWITH_EIGEN=ON \
+        -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
+        -DWITH_CUDA=ON \
+        -DENABLE_FAST_MATH=1 \
+        -DCUDA_FAST_MATH=1 \
+        -DWITH_CUBLAS=1 \
+        -DINSTALL_PYTHON_EXAMPLES=ON \
+        -DBUILD_EXAMPLES=OFF \
+        -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-3.1.0/modules .. && \
+    make -j10 && \
+    make install && \
+    ldconfig && \
+    rm -rf /opencv-3.1.0
+### END OpenCV installation ###
+
+RUN pip install keras h5py pillow 
