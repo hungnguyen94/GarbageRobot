@@ -1,17 +1,21 @@
 <launch>
-  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
-    <remap from="image"     to="/kinect/depth/image_raw"/>
-    <remap from="camera_info" to="/kinect/depth/camera_info"/>
-    <remap from="scan" to="/kinect_scan"/>
-    <param name="range_max" type="double" value="4"/>
-    <param name="output_frame_id" value="/kinect_depth_optical_frame"/>
-  </node>
+  <arg name="scan_topic" default="/kinect_scan"/>
+  <arg name="scan_frame" default="/kinect_link"/>
+  <arg name="camera_depth_info_topic" default="/kinect/depth/camera_info"/>
+  <arg name="camera_depth_image_topic" default="/kinect/depth/image_raw"/>
+
+  <include file="$(find oscar_navigation)/includes/depthimage_to_laserscan.launch">
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="scan_frame" value="$(arg scan_frame)"/>
+    <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
+    <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
+  </include>
 
   <!-- SLAM -->
   <group ns="rtabmap">
     <include file="$(find oscar_navigation)/launch/includes/rtabmap_node.launch">
         <arg name="args" value="" />
-        <arg name="localization" value="trues" />
+        <arg name="localization" value="true" />
         <arg name="scan_topic" value="$(arg scan_topic)" />
     </include>
   </group>
