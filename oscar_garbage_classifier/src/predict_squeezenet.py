@@ -11,7 +11,7 @@ weights_file = './weights.h5'
 nb_epoch = 1
 batch_size = 32
 
-decode  = ['bottle', 'cans', 'coffee cup']
+decode = ['coca_cola_bottles', 'fanta_bottle', 'cola_cans', 'fanta_cans', 'paper_coffee_cups', 'water_bottles']
 # decode = []
 # with open('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/src/classes.txt', 'r') as list_:
     # for line in list_:
