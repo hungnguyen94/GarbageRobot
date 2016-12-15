@@ -4,7 +4,6 @@
 
 ros::NodeHandle  nh;
 
-
 sensor_msgs::Range range_msg;
 ros::Publisher pub_range( "range_data", &range_msg);
 char frameid_lv[] = "/oscar/sonar_lv";
@@ -52,10 +51,10 @@ char* frames[] = {
 
 void setup() {
   Serial.begin (9600);
-  for(int i = 0; i < 8 ; i++) {
-    pinMode(trigger[i], OUTPUT);
-    pinMode(echos[i], INPUT);
-  }
+  //  for(int i = 0; i < 8 ; i++) {
+  //    pinMode(trigger[i], OUTPUT);
+  //    pinMode(echos[i], INPUT);
+  //  }
   setupRos();
 
 }
@@ -81,7 +80,7 @@ float getRange(int trig, int echo) {
   digitalWrite(trig, LOW);
   duration = float(pulseIn(echo, HIGH, 500));
   distance = duration / 5820.0;
-  return distance;
+  return duration;
 }
 
 
@@ -97,15 +96,31 @@ long range_time;
 int i = 0;
 void loop() {
   if(i<8) {
+    pinMode(trigger[i], OUTPUT);
+    pinMode(echos[i], INPUT);
     if ( millis() >= range_time ){
       float range = getRange(trigger[i],echos[i]);
-      publishToROS(frames[i],range);      
-      range_time =  millis() + 150;
+      publishToROS(frames[i],range);     
+      if (i < 4){
+        pinMode(trigger[i+4], OUTPUT);
+        pinMode(echos[i+4], INPUT);
+        float range = getRange(trigger[i+4],echos[i+4]);
+        publishToROS(frames[i+4],range); 
+      }
+      else{
+        pinMode(trigger[i-4], OUTPUT);
+        pinMode(echos[i-4], INPUT);
+        float range = getRange(trigger[i-4],echos[i-4]);
+        publishToROS(frames[i-4],range); 
+      } 
+      range_time =  millis() + 250;
       i++;
     }
-  } else {
+  } 
+  else {
     i = 0;
   }
-    
+
 }
+
 
