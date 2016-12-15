@@ -4,7 +4,6 @@
 
 ros::NodeHandle  nh;
 
-
 sensor_msgs::Range range_msg;
 ros::Publisher pub_range( "range_data", &range_msg);
 char frameid_lv[] = "/oscar/sonar_lv";
@@ -16,25 +15,27 @@ char frameid_laa[] = "/oscar/sonar_laa";
 char frameid_rav[] = "/oscar/sonar_rav";
 char frameid_raa[] = "/oscar/sonar_raa";
 
+/*
 //WHITE
-#define lav_trig 3
-#define lav_echo A2
-//GREY
-#define laa_trig 4
-#define laa_echo A3
-//GREEN
-#define raa_trig 4
-#define raa_echo A1
-//BLUE
-#define rav_trig 5
-#define rav_echo A0
-//YELLOW
-#define lv_trig 6
-#define lv_echo 7
-//ORANGE
-#define lm_trig 8
-#define lm_echo 9
-//RED
+ #define lav_trig 3
+ #define lav_echo A2
+ //GREY
+ #define laa_trig 4
+ #define laa_echo A3
+ //GREEN
+ #define raa_trig 4
+ #define raa_echo A1
+ //BLUE
+ #define rav_trig 5
+ #define rav_echo A0
+ //YELLOW
+ #define lv_trig 6
+ #define lv_echo 7
+ //ORANGE
+ #define lm_trig 8
+ #define lm_echo 9
+ //RED
+ */
 #define rm_trig 10
 #define rm_echo 11
 //BLACK
@@ -42,17 +43,24 @@ char frameid_raa[] = "/oscar/sonar_raa";
 #define rv_echo 13
 
 int trigger[] = {
-  lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
+  /*lv_trig, */  rv_trig, rm_trig /*, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig*/};
 int echos[] = {
-  lv_echo, rv_echo, rm_echo, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo};
+  /*lv_echo, */  rv_echo, rm_echo /*, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo*/};
 char* frames[] = {
-  frameid_lv, frameid_rv, frameid_rm, frameid_rav, frameid_raa, frameid_laa, frameid_lav, frameid_lm
+  /*frameid_lv, */  frameid_rv, frameid_rm /*, frameid_rav, frameid_raa, frameid_laa, frameid_lav, frameid_lm*/
 };
 
+float range[] = {
+};
+
+int i = 0;
+
+char* testout[] = {
+  /*"lv",*/   "rv", "rm"/*, "rav", "raa", "laa", "lav", "lm"*/};
 
 void setup() {
   Serial.begin (9600);
-  for(int i = 0; i < 8 ; i++) {
+  for(int i = 0; i < 2 ; i++) {
     pinMode(trigger[i], OUTPUT);
     pinMode(echos[i], INPUT);
   }
@@ -90,17 +98,27 @@ void publishToROS(char* framee, float range) {
   range_msg.range = range;
   range_msg.header.stamp = nh.now();
   pub_range.publish(&range_msg);
-  nh.spinOnce();
 }
 
 long range_time;
 void loop() {
-  for(int i = 0; i < 8; i++){
+  if( i < 2){
     if ( millis() >= range_time ){
-      float range = getRange(trigger[i],echos[i]);
-      publishToROS(frames[i],range);      
-      range_time =  millis() + 150;
+      range[i] = getRange(trigger[i],echos[i]);
+      range_time =  millis() + 50;
+      publishToROS(frames[i],range[i]);
+      //delay(1000);
     }
+    nh.spinOnce();
+
+    i++;
   }
+  else{
+    i = 0;
+  };
+  //  for (int i = 0; i < 2; i++){
+  //    publishToROS(frames[i],range[i]);
+  //  }    
 }
+
 
