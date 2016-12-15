@@ -79,7 +79,7 @@ float getRange(int trig, int echo) {
   //  delayMicroseconds(1000); - Removed this line
   delayMicroseconds(10); // Added this line
   digitalWrite(trig, LOW);
-  duration = float(pulseIn(echo, HIGH));
+  duration = float(pulseIn(echo, HIGH, 500));
   distance = duration / 5820.0;
   return distance;
 }
@@ -94,13 +94,18 @@ void publishToROS(char* framee, float range) {
 }
 
 long range_time;
+int i = 0;
 void loop() {
-  for(int i = 0; i < 8; i++){
+  if(i<8) {
     if ( millis() >= range_time ){
       float range = getRange(trigger[i],echos[i]);
       publishToROS(frames[i],range);      
       range_time =  millis() + 150;
+      i++;
     }
+  } else {
+    i = 0;
   }
+    
 }
 
