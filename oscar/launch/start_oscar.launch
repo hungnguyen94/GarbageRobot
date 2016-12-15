@@ -1,9 +1,10 @@
 <launch>
-  <arg name="launch_navigation" value="false" />
+  <arg name="launch_navigation" value="true" />
   <arg name="launch_classification" value="false" />
+  <arg name="simulation" value="true" />
 
   <!-- Location of the map to navigate in -->
-  <arg name="map_location" value="$(find oscar_navigation)/map/map1.pgm" />
+  <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
   <!-- The resolution of the map defined in $(arg map_location) -->
   <arg name="map_resolution" value="0.05"/>
   <!-- The topic to publish the map on -->
@@ -22,21 +23,34 @@
   <arg name="camera_depth_image_topic" value="/kinect/depth/image_raw"/>
   <!-- The frame to use for the odomotry of the robot -->
   <arg name="odom_frame" value="/odom"/>
+  <arg name="odom_topic" value="/odom"/>
+
   <!-- Topic to send the movement commands for the base over -->
   <arg name="cmd_vel_topic" value="/cmd_vel"/>
+
+
+
+  <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/spawn_oscar.launch">
+    <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
+    <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
+    <arg name="odom_frame" value="$(arg odom_frame)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+  </include>
+  <!-- <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/openrviz.launch" /> -->
 
   <group ns="state_control">
 
   </group>
 
-  <group ns="sensors">
+  <group if="false">
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
     <!-- TODO add node publishing the sonar transforms -->
 
     <!-- Kinect -->
-    <include file="$(find oscar)/launch/sensors/kinect.launch" >
+    <include unless="$(arg simulation)"  file="$(find oscar)/launch/sensors/kinect.launch" >
       <arg name="camera_name" value="camera" />
       <arg name="depth_registration" value="false" />
       <arg name="rgb_frame_id" value="/$(arg camera_name)_rgb_optical_frame"/>
@@ -54,13 +68,13 @@
     <!-- TODO -->
   </group>
 
-  <group if="$(arg launch_navigation)" ns="navigation">
+  <group if="$(arg launch_navigation)">
       <!-- Publish map data -->
     <include file="$(find oscar_navigation)/launch/map_server.launch" >
       <arg name="map_location" value="$(arg map_location)"/>
       <arg name="map_resolution" value="$(arg map_resolution)"/>
       <arg name="map_topic"  value="$(arg map_topic)"/>
-      <arg name="map_metadata_topic"  value="$(arg map_metadata)"/>
+      <arg name="map_metadata_topic"  value="$(arg map_metadata_topic)"/>
       <arg name="map_frame" value="$(arg map_frame)" />
     </include>
 
@@ -86,7 +100,7 @@
 
   </group>
 
-  <group if="$(arg launch_classification)" ns="garbage_classification">
+  <group if="$(arg launch_classification)" >
 
   </group>
 
