@@ -14,7 +14,7 @@ weights_file = './weights_v1.1.h5'
 batch_size = 64
 val_samples = 2600
 
-input_shape = (33, 33, 3)
+input_shape = (227, 227, 3)
 width = input_shape[0]
 height = input_shape[1]
 
