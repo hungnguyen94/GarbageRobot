@@ -1,0 +1,6 @@
+#request
+bool mode
+uint8 pinNumber
+---
+#response
+string str

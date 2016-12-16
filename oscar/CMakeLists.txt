@@ -23,17 +23,16 @@ include_directories(${catkin_INCLUDE_DIRS})
 ################################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   gpio.msg
-# )
+add_message_files(
+  FILES
+  gpio.msg
+)
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+	SetGpioMode.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
