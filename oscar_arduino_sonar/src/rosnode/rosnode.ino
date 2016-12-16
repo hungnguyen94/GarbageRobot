@@ -1,6 +1,7 @@
 #include <ros.h>
 #include <ros/time.h>
 #include <sensor_msgs/Range.h>
+#include <NewPing.h>
 
 ros::NodeHandle  nh;
 
@@ -40,6 +41,8 @@ char frameid_raa[] = "/oscar/sonar_raa";
 #define rv_trig 12
 #define rv_echo 13
 
+#define max_distance 200
+
 int trigger[] = {
   lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
 int echos[] = {
@@ -51,10 +54,10 @@ char* frames[] = {
 
 void setup() {
   Serial.begin (9600);
-  //  for(int i = 0; i < 8 ; i++) {
+    for(int i = 0; i < 8 ; i++) {
   //    pinMode(trigger[i], OUTPUT);
   //    pinMode(echos[i], INPUT);
-  //  }
+    }
   setupRos();
 
 }
@@ -96,23 +99,25 @@ long range_time;
 int i = 0;
 void loop() {
   if(i<8) {
-    pinMode(trigger[i], OUTPUT);
-    pinMode(echos[i], INPUT);
+    pinMode(trigger[2], OUTPUT);
+    pinMode(echos[2], INPUT);
     if ( millis() >= range_time ){
-      float range = getRange(trigger[i],echos[i]);
-      publishToROS(frames[i],range);     
-      if (i < 4){
-        pinMode(trigger[i+4], OUTPUT);
-        pinMode(echos[i+4], INPUT);
-        float range = getRange(trigger[i+4],echos[i+4]);
-        publishToROS(frames[i+4],range); 
-      }
-      else{
-        pinMode(trigger[i-4], OUTPUT);
-        pinMode(echos[i-4], INPUT);
-        float range = getRange(trigger[i-4],echos[i-4]);
-        publishToROS(frames[i-4],range); 
-      } 
+      //float range = getRange(trigger[2],echos[2]);
+      NewPing sonar(trigger[i], echos[i], max_distance);
+      float range = sonar.ping_cm();
+      publishToROS(frames[2],range);     
+//      if (i < 4){
+//        pinMode(trigger[i+4], OUTPUT);
+//        pinMode(echos[i+4], INPUT);
+//        float range = getRange(trigger[i+4],echos[i+4]);
+//        publishToROS(frames[i+4],range); 
+//      }
+//      else{
+//        pinMode(trigger[i-4], OUTPUT);
+//        pinMode(echos[i-4], INPUT);
+//        float range = getRange(trigger[i-4],echos[i-4]);
+//        publishToROS(frames[i-4],range); 
+//      } 
       range_time =  millis() + 250;
       i++;
     }
