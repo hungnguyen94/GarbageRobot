@@ -54,10 +54,10 @@ char* frames[] = {
 
 void setup() {
   Serial.begin (9600);
-    for(int i = 0; i < 8 ; i++) {
+  //  for(int i = 0; i < 8 ; i++) {
   //    pinMode(trigger[i], OUTPUT);
   //    pinMode(echos[i], INPUT);
-    }
+  //  }
   setupRos();
 
 }
