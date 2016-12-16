@@ -1,4 +1,6 @@
 <launch>
+  <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
+
 <!-- SIMULATION -->
   <include file="$(find oscar_simulation)/launch/spawn_oscar.launch" />
 
@@ -7,10 +9,20 @@
   <include file="$(find oscar_navigation)/launch/localization/amcl.launch" />
 
   <!-- ROUTE PLANNING -->
-  <include file="$(find oscar_navigation)/launch/move_base.launch" />\
+  <!-- <include file="$(find oscar_navigation)/launch/move_base.launch" /> -->
+  <include file="$(find oscar_navigation)/launch/map_server.launch" >
+    <arg name="map_location" value="$(arg map_location)"/>
+    <arg name="map_resolution" value="0.05"/>
+    <arg name="map_topic"  value="/map"/>
+    <arg name="map_metadata_topic"  value="/map_metadat"/>
+    <arg name="map_frame" value="/map" />
+  </include>
+  <include file="$(find oscar_navigation)/launch/move_base.launch" >
+    <arg name="cmd_vel_topic" value="/cmd_vel" />
+  </include>
 
   <!-- DEBUG/MONITORING TOOLS -->
   <include file="$(find oscar_simulation)/launch/openrviz.launch" />
-  <include file="$(find oscar_simulation)/launch/wii.launch" />
+  <!-- <include file="$(find oscar_simulation)/launch/wii.launch" /> -->
 
 </launch>
