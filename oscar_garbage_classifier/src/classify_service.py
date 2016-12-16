@@ -3,6 +3,7 @@
 from squeezenetv1_1 import SqueezeNet
 import keras
 import keras.backend.tensorflow_backend as K
+import tensorflow as tf
 from oscar_garbage_classifier.srv import ClassifyImage
 from cv_bridge import CvBridge
 import cv2
@@ -12,23 +13,24 @@ import time
 
 
 classes = ['coca_cola_bottles', 'fanta_bottle', 'cola_cans', 'fanta_cans', 'paper_coffee_cups', 'water_bottles']
+classes_mapping = {'coca_cola_bottles': 0, 'fanta_bottle': 0, 'cola_cans': 1, 'fanta_cans': 1, 'paper_coffee_cups': 2, 'water_bottles': 0}
 
-# squeezenet = SqueezeNet(6, input_shape=(227, 227, 3))
-sess = K.get_session()
+my_graph = tf.Graph()
+squeezenet = None
 
-def load_squeezenet(img):
-    K.set_session(sess)
-    with sess:
-        if True:
+def load_squeezenet():
+    with my_graph.as_default():
+        global squeezenet
+        if squeezenet is None: 
             squeezenet = SqueezeNet(6, input_shape=(227, 227, 3))
             print('Instantiated model')
-            squeezenet.load_weights('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/src/weights_v1.1.h5', by_name=True)
-        return squeezenet.predict
+            squeezenet.load_weights('./weights_v1.1.h5', by_name=True)
+        return squeezenet
 
-def load_image(img_path):
+def load_image(img):
     # Load image with 3 channel colors
-    img = cv2.imread('/mnt/data/Development/ros/catkin_ws/images/cola_bottles_13.jpg', flags=1)
-    print(img.shape) 
+    # img = cv2.imread('/mnt/data/Development/ros/catkin_ws/images/cola_bottles_13.jpg', flags=1)
+    # print(img.shape) 
 
     # Image needs to the resized to (227x227), but we want to maintain the aspect ratio.
     height = img.shape[0]
@@ -45,7 +47,7 @@ def load_image(img_path):
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
     # Resize image to 227, 227 as Squeezenet only accepts this format.
-    resized_image = cv2.resize(cropped_img, (227, 227)).astype(np.float64)
+    resized_image = cv2.resize(cropped_img, (227, 227)).astype(np.float32)
     resized_image /= 255
     resized_image = np.expand_dims(resized_image, axis=0)
     return resized_image
@@ -53,11 +55,11 @@ def load_image(img_path):
 def handle_service(request): 
     print('Classifying image')
     img = CvBridge().imgmsg_to_cv2(request.msg)
-    img2 = load_image(img)
-    sq = load_squeezenet(img2)
+    img = load_image(img)
+    sq = load_squeezenet()
+    with my_graph.as_default():
+        result = sq.predict(img)
     print('predicting')
-    with sess:
-        result = sq(img2)
     # result = squeezenet.predict(img2)
     print('result: %s' % zip(classes, result[0]))
     top = result[0].argsort()[-1::][0]
