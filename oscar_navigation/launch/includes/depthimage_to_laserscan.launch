@@ -7,7 +7,7 @@
 
   <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
     <remap from="image"     to="$(arg camera_depth_image_topic)"/>
-    <remap from="camera_info" to="(arg camera_depth_info_topic)"/>
+    <remap from="camera_info" to="$(arg camera_depth_info_topic)"/>
     <remap from="scan" to="$(arg scan_topic)"/>
     <param name="range_max" type="double" value="4"/>
     <param name="output_frame_id" value="$(arg scan_frame)"/>
