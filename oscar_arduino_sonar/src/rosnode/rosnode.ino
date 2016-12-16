@@ -41,7 +41,6 @@ char frameid_raa[] = "/oscar/sonar_raa";
 #define rv_trig 12
 #define rv_echo 13
 
-#define max_distance 200
 
 int trigger[] = {
   lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
@@ -51,13 +50,32 @@ char* frames[] = {
   frameid_lv, frameid_rv, frameid_rm, frameid_rav, frameid_raa, frameid_laa, frameid_lav, frameid_lm
 };
 
+#define sonar_num  8
+#define max_distance 200
+#define ping_interval 33
+
+unsigned long pingTimer[sonar_num]; // Holds the times when the next ping should happen for each sensor.
+unsigned int cm[sonar_num];         // Where the ping distances are stored.
+uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
+
+
+NewPing sonar[sonar_num] = {
+  NewPing(trigger[0], echos[0], max_distance),
+  NewPing(trigger[1], echos[1], max_distance),
+  NewPing(trigger[2], echos[2], max_distance),
+  NewPing(trigger[3], echos[3], max_distance),
+  NewPing(trigger[4], echos[4], max_distance),
+  NewPing(trigger[5], echos[5], max_distance),
+  NewPing(trigger[6], echos[6],max_distance),
+  NewPing(trigger[7], echos[7],max_distance)
+};
 
 void setup() {
   Serial.begin (9600);
-  //  for(int i = 0; i < 8 ; i++) {
-  //    pinMode(trigger[i], OUTPUT);
-  //    pinMode(echos[i], INPUT);
-  //  }
+  pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
+  for (uint8_t i = 1; i < sonar_num; i++){ // Set the starting time for each sensor.
+    pingTimer[i] = pingTimer[i - 1] + ping_interval;
+  };
   setupRos();
 
 }
@@ -95,37 +113,42 @@ void publishToROS(char* framee, float range) {
   nh.spinOnce();
 }
 
+void echoCheck() { // If ping received, set the sensor distance to array.
+  if (sonar[currentSensor].check_timer())
+    cm[currentSensor] = sonar[currentSensor].ping_result / US_ROUNDTRIP_CM;
+}
+
 long range_time;
 int i = 0;
 void loop() {
-  if(i<8) {
-    pinMode(trigger[2], OUTPUT);
-    pinMode(echos[2], INPUT);
-    if ( millis() >= range_time ){
-      //float range = getRange(trigger[2],echos[2]);
-      NewPing sonar(trigger[i], echos[i], max_distance);
-      float range = sonar.ping_cm();
-      publishToROS(frames[2],range);     
-//      if (i < 4){
-//        pinMode(trigger[i+4], OUTPUT);
-//        pinMode(echos[i+4], INPUT);
-//        float range = getRange(trigger[i+4],echos[i+4]);
-//        publishToROS(frames[i+4],range); 
-//      }
-//      else{
-//        pinMode(trigger[i-4], OUTPUT);
-//        pinMode(echos[i-4], INPUT);
-//        float range = getRange(trigger[i-4],echos[i-4]);
-//        publishToROS(frames[i-4],range); 
-//      } 
-      range_time =  millis() + 250;
-      i++;
+ for (uint8_t i = 0; i < sonar_num; i++) { // Loop through all the sensors.
+    if (millis() >= pingTimer[i]) {         // Is it this sensor's time to ping?
+      pingTimer[i] += ping_interval * sonar_num;  // Set next time this sensor will be pinged.
+      if (i == 0 && currentSensor == sonar_num - 1) oneSensorCycle(); // Sensor ping cycle complete, do something with the results.
+      sonar[currentSensor].timer_stop();          // Make sure previous timer is canceled before starting a new ping (insurance).
+      currentSensor = i;                          // Sensor being accessed.
+      cm[currentSensor] = 0;                      // Make distance zero in case there's no ping echo for this sensor.
+      sonar[currentSensor].ping_timer(echoCheck); // Do the ping (processing continues, interrupt will call echoCheck to look for echo).
     }
-  } 
-  else {
-    i = 0;
   }
+//    if ( millis() >= range_time ){
+//      //float range = getRange(trigger[2],echos[2]);
+//      NewPing sonar(trigger[i], echos[i], max_distance);
+//      float range = sonar.ping_cm();
+//      publishToROS(frames[2],range);     
+//      range_time =  millis() + 250;
+//      i++;
+//    }
+//  } 
+//  else {
+//    i = 0;
+//  }
 
 }
 
-
+void oneSensorCycle() { // Sensor ping cycle complete, do something with the results.
+  // The following code would be replaced with your code that does something with the ping results.
+  for (uint8_t i = 0; i < sonar_num; i++) {
+    publishToROS(frames[i],cm[i]);
+  }
+}
