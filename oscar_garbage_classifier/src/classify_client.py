@@ -17,7 +17,8 @@ def usage():
 if __name__ == '__main__':
     import cv2
     from cv_bridge import CvBridge
-    img = cv2.imread('/mnt/data/Development/ros/catkin_ws/images/coffee_cup_7.jpg')
+    cam = cv2.VideoCapture(0)
+    ret, img = cam.read()
     imgmsg = CvBridge().cv2_to_imgmsg(img)
     classify_image_client(imgmsg)
 
