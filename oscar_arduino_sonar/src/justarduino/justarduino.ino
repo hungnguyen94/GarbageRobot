@@ -1,3 +1,4 @@
+/*
 #include <ros.h>
 #include <ros/time.h>
 #include <sensor_msgs/Range.h>
@@ -14,6 +15,7 @@ char frameid_lav[] = "/oscar/sonar_lav";
 char frameid_laa[] = "/oscar/sonar_laa";
 char frameid_rav[] = "/oscar/sonar_rav";
 char frameid_raa[] = "/oscar/sonar_raa";
+*/
 
 //WHITE
 #define lav_trig 3
@@ -44,10 +46,11 @@ int trigger[] = {
   lv_trig, rv_trig, rm_trig, rav_trig, raa_trig, laa_trig, lav_trig, lm_trig};
 int echos[] = {
   lv_echo, rv_echo, rm_echo, rav_echo, raa_echo, laa_echo, lav_echo, lm_echo};
+/*
 char* frames[] = {
   frameid_lv, frameid_rv, frameid_rm, frameid_rav, frameid_raa, frameid_laa, frameid_lav, frameid_lm
 };
-
+*/
 
 void setup() {
   Serial.begin (9600);
@@ -55,10 +58,11 @@ void setup() {
   //    pinMode(trigger[i], OUTPUT);
   //    pinMode(echos[i], INPUT);
   //  }
-  setupRos();
+  //setupRos();
 
 }
 
+/*
 void setupRos() {
   nh.initNode();
   nh.advertise(pub_range);
@@ -68,6 +72,7 @@ void setupRos() {
   range_msg.min_range = 0.00;
   range_msg.max_range = 1000.4;
 }
+*/
 
 float getRange(int trig, int echo) {
   long duration;
@@ -83,7 +88,7 @@ float getRange(int trig, int echo) {
   return duration;
 }
 
-
+/*
 void publishToROS(char* framee, float range) {
   range_msg.header.frame_id = framee; 
   range_msg.range = range;
@@ -91,36 +96,46 @@ void publishToROS(char* framee, float range) {
   pub_range.publish(&range_msg);
   nh.spinOnce();
 }
+*/
 
 long range_time;
 int i = 0;
 void loop() {
-  if(i<8) {
-    pinMode(trigger[i], OUTPUT);
-    pinMode(echos[i], INPUT);
-    if ( millis() >= range_time ){
-      float range = getRange(trigger[i],echos[i]);
-      publishToROS(frames[i],range);     
-      if (i < 4){
-        pinMode(trigger[i+4], OUTPUT);
-        pinMode(echos[i+4], INPUT);
-        float range = getRange(trigger[i+4],echos[i+4]);
-        publishToROS(frames[i+4],range); 
-      }
-      else{
-        pinMode(trigger[i-4], OUTPUT);
-        pinMode(echos[i-4], INPUT);
-        float range = getRange(trigger[i-4],echos[i-4]);
-        publishToROS(frames[i-4],range); 
-      } 
-      range_time =  millis() + 250;
-      i++;
-    }
-  } 
-  else {
-    i = 0;
-  }
+//  
+//  if(i<8) {
+//    pinMode(trigger[i], OUTPUT);
+//    pinMode(echos[i], INPUT);
+//    if ( millis() >= range_time ){
+//      float range = getRange(trigger[i],echos[i]);
+//      Serial.println(range);
+//      //publishToROS(frames[i],range);     
+//      if (i < 4){
+//        pinMode(trigger[i+4], OUTPUT);
+//        pinMode(echos[i+4], INPUT);
+//        float range = getRange(trigger[i+4],echos[i+4]);
+//        Serial.println(range);
+//        //publishToROS(frames[i+4],range); 
+//      }
+//      else{
+//        pinMode(trigger[i-4], OUTPUT);
+//        pinMode(echos[i-4], INPUT);
+//        float range = getRange(trigger[i-4],echos[i-4]);
+//        Serial.println(range);
+//        //publishToROS(frames[i-4],range); 
+//      } 
+//      range_time =  millis() + 250;
+//      i++;
+//    }
+//  } 
+//  else {
+//    i = 0;
+//  }
 
+  pinMode(10, OUTPUT);
+  pinMode(11, INPUT);
+  Serial.println(getRange(10,11));
+  
+  delay(100);
 }
 
 
