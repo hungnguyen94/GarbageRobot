@@ -1,7 +1,7 @@
 <launch>
-  <arg name="launch_navigation" value="true" />
+  <arg name="launch_navigation" value="false" />
   <arg name="launch_classification" value="false" />
-  <arg name="simulation" value="true" />
+  <arg name="simulation" value="false" />
 
   <!-- Location of the map to navigate in -->
   <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
@@ -28,7 +28,10 @@
   <!-- Topic to send the movement commands for the base over -->
   <arg name="cmd_vel_topic" value="/cmd_vel"/>
 
-
+  <node pkg="oscar" type="gpio_services.py" name="gpio_node" output="screen"/>
+  <node pkg="oscar" type="rpi_gpio_reader.py" name="gpio_reader" output="screen">
+    <remap from="/gpio_events" to="/gpio_events"></remap>
+  </node>
 
   <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/spawn_oscar.launch">
     <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
