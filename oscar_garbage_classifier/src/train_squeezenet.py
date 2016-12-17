@@ -11,11 +11,11 @@ training_dir = './images'
 val_dir = './validation'
 weights_file = './weights_v1.1.h5'
 initial_epoch = 0
-nb_epoch = 8
+nb_epoch = 1
 batch_size = 64
 samples_per_epoch = 2600
 nb_val_samples = 300
-input_shape = (33, 33, 3)
+input_shape = (227, 227, 3)
 width = input_shape[0]
 height = input_shape[1]
 
