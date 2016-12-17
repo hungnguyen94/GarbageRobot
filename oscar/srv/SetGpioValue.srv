@@ -1,5 +1,5 @@
 #request
 uint8 pinNumber
-int8 mode #0 for INPUT, 1 for OUTPUT
+bool value #False for LOW, True for HIGH
 ---
 string message
