@@ -3,24 +3,60 @@
 from __future__ import print_function
 import rospy
 from oscar_garbage_classifier.srv import ClassifyImage
-import RPi.GPIO as GPIO
 
-def classify_image_client(image):
+classes = ['bottles', 'cans', 'cups']
+cam_index = 0
+
+cups_pin = 1
+pmd_pin = 2
+other_pin = 3
+
+
+def init_rpi_gpio():
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT)
+
+
+def classify_image(image):
+    """
+    Create a request to the classify image service.
+    :param image: Image to be classified.
+    :return: Integer representing the predicted class.
+    """
     rospy.wait_for_service('image_classify')
     image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
     result = image_classify(image)
-    print('Result: %s' % result)
+    print('Result: %s' % result.prediction)
     return result.prediction
 
+
+def switch_input(pin):
+    GPIO.output(pin, GPIO.HIGH)
+    GPIO.output(pin, GPIO.LOW)
+
+
+def invoke_sorter(classification):
+    if classification in ['bottles', 'cans']:
+        switch_input(pmd_pin)
+    elif classification in ['cups']:
+        switch_input(cups_pin)
+    else:
+        switch_input(other_pin)
+
+
 def usage():
-    return "hey"
+    return ""
 
 if __name__ == '__main__':
     import cv2
     from cv_bridge import CvBridge
-    img = cv2.imread('/mnt/data/Development/ros/catkin_ws/images/coffee_cup_7.jpg')
-    imgmsg = CvBridge().cv2_to_imgmsg(img)
-    res = classify_image_client(imgmsg)
 
+    cam = cv2.VideoCapture(cam_index)
+    ret, img = cam.read()
+    imgmsg = CvBridge().cv2_to_imgmsg(img)
+    result = classify_image(imgmsg)
+    # invoke_sorter(classes[result])
+    # GPIO.cleanup()
 
 
