@@ -6,7 +6,6 @@ import RPi.GPIO as GPIO
 def handle_set_gpio_mode(req):
     mode = GPIO.IN if req.mode==1  else GPIO.OUT
     rospy.loginfo("Requested received to set pin %s to mode %s", req.pinNumber, mode)
-    GPIO.setmode(GPIO.BOARD)
     GPIO.setup(req.pinNumber,mode)
     response = "Pin %s set to mode %s"%(req.pinNumber, mode)
     return SetGpioModeResponse(response)
@@ -18,10 +17,15 @@ def handle_set_gpio_value(req):
     response ="Pin %s set to %s" %(str(req.pinNumber), str(output))
     return SetGpioModeResponse(response)
 
+def shutdown():
+    GPIO.cleanup()
+
 def set_gpio_mode_server():
     rospy.init_node('set_gpio_mode_node')
     rospy.Service('set_gpio_mode', SetGpioMode, handle_set_gpio_mode)
     rospy.Service('set_gpio_value', SetGpioValue, handle_set_gpio_value)
+    rospy.on_shutdown(shutdown)
+    GPIO.setmode(GPIO.BOARD)
     rospy.spin()
 
 if __name__ == "__main__":
