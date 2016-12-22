@@ -9,6 +9,11 @@
 
 #define resetDelay 5
 
+typedef struct {
+  int frameIndex;
+  int frameDelay;
+} frame;
+
 int happy[8] = {
   B00000000,
   B00011000,
@@ -19,33 +24,28 @@ int happy[8] = {
   B00000000,
   B00000000
 };
-int evilEyesOrder[] = {
-  0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 
-  20, 22, 24, 26, 28, 30, 32, 34, 36, 38};//, 
-//  36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 
-//  16, 14, 12, 10, 8, 6, 4, 2, 0};
-  
-int evilEyes[40][8] =    
+
+int evilEyes[][8] =    
 {   
   { // LeftEye1, 0  
-    B01111110,
-    B10000001,
+    B00111100,
+    B01000010,
     B10000001,
     B10011001,
     B10011001,
     B10000001,
-    B10000001,
-    B01111110
+    B01000010,
+    B00111100
   },  
   { // RightEye1, 1 
-    B01111110,
-    B10000001,
+    B00111100,
+    B01000010,
     B10000001,
     B10011001,
     B10011001,
     B10000001,
-    B10000001,
-    B01111110
+    B01000010,
+    B00111100
   },  
   { // LeftEye2, 2  
     B00000000,
@@ -429,11 +429,12 @@ int evilEyes[40][8] =
   } 
 };    
 
-
-
-int blinkOrder[] = {
-  0, 1, 2, 3, 4, 4, 4, 3, 2, 1, 0
+frame evilFrames[] = {
+  {0, 1500}, {2, 5}, {4, 10}, {6, 10}, {32, 100}, {6, 10}, {4, 10}, {2, 5}, {0, 1500},
+  {8, 10}, {10, 10}, {12, 10}, {14, 4000}, {12, 10}, {10, 10}, {8, 10}
 };
+
+
 int blinkImg[][8] = {    // Eye animation frames
   {
     B00111100,         // Fully open eye
@@ -491,6 +492,17 @@ int blinkImg[][8] = {    // Eye animation frames
   }
 };
 
+frame blinkFrames[] = {
+  {0, 2000},
+  {1, 20},
+  {2, 20},
+  {3, 20},
+  {4, 200},
+  {3, 20},
+  {2, 20},
+  {1, 20},
+  {0, 20}
+};
 
 
 int wink[8] = {
@@ -577,7 +589,7 @@ void setup() {
 int i = 0;
 
 void loop() {
-  int var = 3;
+  int var = 4;
 
 
   switch (var) {
@@ -598,11 +610,13 @@ void loop() {
       break;
     case 3:
 //      drawEyes(love);
-      animateEyes(evilEyes, evilEyesOrder, sizeof(evilEyesOrder) / sizeof(*evilEyesOrder), 5);
+        animateEyes2(blinkImg, blinkFrames, sizeof(blinkFrames)/sizeof(*blinkFrames));
+//      animateEyes(evilEyes, evilEyesOrder, sizeof(evilEyesOrder) / sizeof(*evilEyesOrder), 5);
       break;
     case 4:
 //      drawExpression(happy, 2000);
-      animateEyes(blinkImg, blinkOrder, sizeof(blinkOrder) / sizeof(*blinkOrder), 70);
+        animateEyes2(evilEyes, evilFrames, sizeof(evilFrames)/sizeof(*evilFrames));
+//      animateEyes(blinkImg, blinkOrder, sizeof(blinkOrder) / sizeof(*blinkOrder), 70);
       break;
     default:
       // neutral expression
@@ -619,6 +633,13 @@ void drawExpression(int *expression, int delayTime) {
     drawEyes(expression);
   }
 //  animateEyes(blinkImg, blinkOrder, sizeof(blinkOrder) / sizeof(*blinkOrder));
+}
+
+void animateEyes2(int (*image)[8], frame *frames, int frameLength) {
+  for (int i = 0; i < frameLength; i++) {
+    frame f = frames[i];
+    drawExpression(image[f.frameIndex], f.frameDelay);
+  }
 }
 
 // Delay in ms
