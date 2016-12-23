@@ -1,0 +1,9 @@
+<launch>
+  <arg name="port" default="/dev/ttyACM0"/>
+  <node pkg="rosserial_python" name="serial_node" type="serial_node.py" args="$(arg port)"></node>
+  <node pkg="oscar_arduino_sonar" name="sonar_filter" type="sonar_filter.py" >
+    <remap from="/sonar_data" to="/sonar_data"/>
+    <remap from="/sonar_data_raw" to="/sonar_data_raw"/>
+  </node>
+  <node pkg="oscar" name="sonar_frames" type="sonarframe_broadcaster" />
+</launch>
