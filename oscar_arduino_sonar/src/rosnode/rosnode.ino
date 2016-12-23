@@ -2,12 +2,11 @@
   #include <ros/time.h>
   #include <sensor_msgs/Range.h>
   #include <NewPing.h>
-  #include <RunningMedian.h>
-  
+
   ros::NodeHandle  nh;
-  
+
   sensor_msgs::Range range_msg;
-  ros::Publisher pub_range( "range_data", &range_msg);
+  ros::Publisher pub_range( "sonar_data_raw", &range_msg);
   char frameid_lv[] = "/sonar_lv";
   char frameid_rv[] = "/sonar_rv";
   char frameid_lm[] = "/sonar_lm";
@@ -16,7 +15,7 @@
   char frameid_laa[] = "/sonar_laa";
   char frameid_rav[] = "/sonar_rav";
   char frameid_raa[] = "/sonar_raa";
-  
+
   //WHITE
   #define lav_trig 2
   #define lav_echo 3
@@ -41,8 +40,8 @@
   //BLACK
   #define rv_trig 12
   #define rv_echo 13
-  
-  
+
+
   int trigger[] = {
     lv_trig,     raa_trig, rv_trig, laa_trig, rm_trig, lav_trig, rav_trig, lm_trig};
   int echos[] = {
@@ -50,16 +49,16 @@
   char* frames[] = {
     frameid_lv,  frameid_raa, frameid_rv, frameid_laa, frameid_rm, frameid_lav, frameid_rav, frameid_lm
   };
-  
+
   #define sonar_num  8
-  #define max_distance 200
-  #define ping_interval 33
-  
+  #define max_distance 400
+  #define ping_interval 50
+
   unsigned long pingTimer[sonar_num]; // Holds the times when the next ping should happen for each sensor.
   unsigned int cm[sonar_num];         // Where the ping distances are stored.
   uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
-  
-  NewPing sonar[sonar_num] = {
+
+  NewPing sonar[] = {
     NewPing(trigger[0], echos[0], max_distance),
     NewPing(trigger[1], echos[1], max_distance),
     NewPing(trigger[2], echos[2], max_distance),
@@ -67,10 +66,10 @@
     NewPing(trigger[4], echos[4], max_distance),
     NewPing(trigger[5], echos[5], max_distance),
     NewPing(trigger[6], echos[6],max_distance),
-    NewPing(trigger[7], echos[7],max_distance) 
+    NewPing(trigger[7], echos[7],max_distance)
   };
-  
-  
+
+
   void setup() {
     Serial.begin (9600);
     pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
@@ -78,44 +77,44 @@
       pingTimer[i] = pingTimer[i - 1] + ping_interval;
     };
     setupRos();
-  
   }
-  
+
   void setupRos() {
     nh.initNode();
     nh.advertise(pub_range);
-  
+
     range_msg.radiation_type = sensor_msgs::Range::ULTRASOUND;
     range_msg.field_of_view = 0.15;
-    range_msg.min_range = 0.00;
-    range_msg.max_range = 1000.4;
+    range_msg.min_range = 0.04;
+    range_msg.max_range = max_distance;
   }
-  
+
 
   void publishToROS(char* framee, float range) {
-    range_msg.header.frame_id = framee; 
+    range_msg.header.frame_id = framee;
     range_msg.range = range;
     range_msg.header.stamp = nh.now();
     pub_range.publish(&range_msg);
     nh.spinOnce();
   }
-  
+
   long range_time;
   int i = 0;
-  RunningMedian samples = RunningMedian(5);
-  
+
+
   void loop() {
    if (i<sonar_num) {
+
       if (millis() >= pingTimer[i]) {         // Is it this sensor's time to ping?
         pingTimer[i] += ping_interval * sonar_num;  // Set next time this sensor will be pinged.
         sonar[currentSensor].timer_stop();          // Make sure previous timer is canceled before starting a new ping (insurance).
-        currentSensor = i;                          // Sensor being accessed.
-        samples.add(float(sonar[currentSensor].ping_cm())/100);
-        publishToROS(frames[i],samples.getMedian());
+        currentSensor = i;            // Sensor being accessed.
+        float result = float(sonar[currentSensor].ping_cm())/100;
+        publishToROS(frames[i],result);
         i++;
       }
      } else {
       i = 0;
     }
-    delay(70);
+    //delay(70);
   }
