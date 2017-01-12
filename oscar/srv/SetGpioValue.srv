@@ -1,5 +1,0 @@
-#request
-uint8 pinNumber
-bool value #False for LOW, True for HIGH
----
-string message
