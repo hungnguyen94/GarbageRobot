@@ -63,10 +63,10 @@
     <!-- TODO -->
 
     <!-- Converting twist messages to motor commands -->
-    <node name="base_controller" pkg="dpr4_base" type="dpr4_base.cpp" output="screen" >
+    <node name="base_controller" pkg="dpr4_base" type="velocity_listener.cpp" output="screen" >
       <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
     </node>
-  
+
 
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->
