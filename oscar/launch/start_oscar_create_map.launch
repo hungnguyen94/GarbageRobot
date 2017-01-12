@@ -1,0 +1,6 @@
+<launch>
+<include file="$(find oscar)/launch/start_oscar.launch">
+  <arg name="navigation" value="false"/>
+  <arg name="classification" value="false"/>
+</include>
+</launch>

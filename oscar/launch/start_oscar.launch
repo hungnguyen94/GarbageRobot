@@ -1,8 +1,7 @@
 <launch>
-  <arg name="launch_navigation" default="false" />
-  <arg name="launch_classification" default="false" />
-  <arg name="simulation" default="false" />
-  <arg name="kinect_connected" default="false"/>
+  <arg name="navigation" default="true" />
+  <arg name="classification" default="true" />
+  <arg name="kinect_connected" default="true"/>
   <param name="use_sim_time" value="false"></param >
 
   <!-- ===================================================================== -->
@@ -35,27 +34,11 @@
   <arg name="cmd_vel_topic" value="/cmd_vel"/>
 
   <!-- ===================================================================== -->
-  <!-- ======================= Simulation ================================= -->
-  <!-- ===================================================================== -->
-
-
-  <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/spawn_oscar.launch">
-    <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
-    <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
-    <arg name="odom_frame" value="$(arg odom_frame)"/>
-    <arg name="odom_topic" value="$(arg odom_topic)"/>
-    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
-  </include>
-  <!-- <include if="true" file="$(find oscar_simulation)/launch/openrviz.launch" /> -->
-
-  <!-- <node pkg="oscar" type="state_controller.py" name="state_controller.py" output="screen" /> -->
-
-  <!-- ===================================================================== -->
   <!-- ======================= Sensors and general stuff==================== -->
   <!-- ===================================================================== -->
 
 
-  <group if="true">
+
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
@@ -78,13 +61,18 @@
 
     <!-- Mouth sensor -->
     <!-- TODO -->
-  </group>
+
+    <!-- Converting twist messages to motor commands -->
+    <node name="base_controller" pkg="dpr4_base" type="dpr4_base.cpp" output="screen" >
+      <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
+    </node>
+  
 
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->
   <!-- ===================================================================== -->
 
-  <group if="$(arg launch_navigation)">
+  <group if="$(arg navigation)">
       <!-- Publish map data -->
     <include file="$(find oscar_navigation)/launch/map_server.launch" >
       <arg name="map_location" value="$(arg map_location)"/>
@@ -113,17 +101,13 @@
     <include file="$(find oscar_navigation)/launch/move_base.launch" >
       <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
     </include>
-
-    <!-- Converting twist messages to motor commands -->
-    <!-- TODO add basecontroller -->
-
   </group>
 
   <!-- ===================================================================== -->
   <!-- ======================= Garbage classification ====================== -->
   <!-- ===================================================================== -->
 
-  <group if="$(arg launch_classification)" >
+  <group if="$(arg classification)" >
 
   </group>
 
