@@ -5,7 +5,7 @@
   <arg name="map_metadata_topic" />
   <arg name="map_frame" />
 
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_location) $(arg map_resolution)">
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_location) $(arg map_resolution)" output="screen">
     <remap from="/map" to="$(arg map_topic)" />
     <remap from="/map_metadata" to="$(arg map_metadata_topic)" />
     <param name="frame_id" value="$(arg map_frame)"/>
