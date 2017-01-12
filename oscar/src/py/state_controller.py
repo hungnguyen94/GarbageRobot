@@ -20,7 +20,7 @@ def start_user_interaction() :
     if currentState == State.full:
         return
     # stop driving
-    
+
 def start_sorting() :
     if currentState == State.full:
         return
@@ -79,3 +79,6 @@ if __name__ == '__main__':
     readConfig()
     setupPins()
     startROS()
+
+def shutdown():
+    GPIO.cleanup()
