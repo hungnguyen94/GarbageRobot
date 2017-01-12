@@ -1,7 +1,13 @@
 <launch>
-  <arg name="launch_navigation" value="false" />
-  <arg name="launch_classification" value="false" />
-  <arg name="simulation" value="false" />
+  <arg name="launch_navigation" default="false" />
+  <arg name="launch_classification" default="false" />
+  <arg name="simulation" default="false" />
+  <arg name="kinect_connected" default="false"/>
+  <param name="use_sim_time" value="false"></param >
+
+  <!-- ===================================================================== -->
+  <!-- ======================= Settings ==================================== -->
+  <!-- ===================================================================== -->
 
   <!-- Location of the map to navigate in -->
   <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
@@ -28,10 +34,10 @@
   <!-- Topic to send the movement commands for the base over -->
   <arg name="cmd_vel_topic" value="/cmd_vel"/>
 
-  <node pkg="oscar" type="gpio_services.py" name="gpio_node" output="screen"/>
-  <node pkg="oscar" type="rpi_gpio_reader.py" name="gpio_reader" output="screen">
-    <remap from="/gpio_events" to="/gpio_events"></remap>
-  </node>
+  <!-- ===================================================================== -->
+  <!-- ======================= Simulation ================================= -->
+  <!-- ===================================================================== -->
+
 
   <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/spawn_oscar.launch">
     <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
@@ -40,24 +46,27 @@
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
   </include>
-  <!-- <include if="$(arg simulation)" file="$(find oscar_simulation)/launch/openrviz.launch" /> -->
+  <!-- <include if="true" file="$(find oscar_simulation)/launch/openrviz.launch" /> -->
 
-  <group ns="state_control">
+  <!-- <node pkg="oscar" type="state_controller.py" name="state_controller.py" output="screen" /> -->
 
-  </group>
+  <!-- ===================================================================== -->
+  <!-- ======================= Sensors and general stuff==================== -->
+  <!-- ===================================================================== -->
 
-  <group if="false">
+
+  <group if="true">
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
     <!-- TODO add node publishing the sonar transforms -->
 
     <!-- Kinect -->
-    <include unless="$(arg simulation)"  file="$(find oscar)/launch/sensors/kinect.launch" >
+    <include if="$(arg kinect_connected)"  file="$(find oscar)/launch/sensors/kinect.launch" >
       <arg name="camera_name" value="camera" />
       <arg name="depth_registration" value="false" />
-      <arg name="rgb_frame_id" value="/$(arg camera_name)_rgb_optical_frame"/>
-      <arg name="depth_frame_id" value="/$(arg camera_name)_depth_optical_frame"/>
+      <arg name="rgb_frame_id" value="/kinect_rgb_optical_frame"/>
+      <arg name="depth_frame_id" value="/kinect_depth_optical_frame"/>
       <arg name="publish_tf" value="true"/>
       <arg name="rgb_processing" value="false"/>
       <arg name="depth_processing" value="false"/>
@@ -70,6 +79,10 @@
     <!-- Mouth sensor -->
     <!-- TODO -->
   </group>
+
+  <!-- ===================================================================== -->
+  <!-- ======================= Navigation  ================================= -->
+  <!-- ===================================================================== -->
 
   <group if="$(arg launch_navigation)">
       <!-- Publish map data -->
@@ -88,6 +101,9 @@
       <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
       <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
       <arg name="odom_frame" value="$(arg odom_frame)"/>
+      <arg name="initial_pose_x" value="15"/>
+      <arg name="initial_pose_y" value="9"/>
+      <arg name="initial_pose_a" value="0"/>
     </include>
 
     <!-- Generating navigation goals -->
@@ -102,6 +118,10 @@
     <!-- TODO add basecontroller -->
 
   </group>
+
+  <!-- ===================================================================== -->
+  <!-- ======================= Garbage classification ====================== -->
+  <!-- ===================================================================== -->
 
   <group if="$(arg launch_classification)" >
 
