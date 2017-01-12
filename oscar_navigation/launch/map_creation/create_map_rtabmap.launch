@@ -17,4 +17,6 @@
         <arg name="scan_topic" value="$(arg scan_topic)" />
     </include>
   </group>
+
+  <include file="$(find oscar_simulation)/launch/wii.launch"></include>
 </launch>
