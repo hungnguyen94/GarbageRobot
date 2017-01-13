@@ -161,3 +161,10 @@ catkin_package(
 
 add_executable(sonarframe_broadcaster src/cpp/sonarframe_broadcaster.cpp)
 target_link_libraries(sonarframe_broadcaster ${catkin_LIBRARIES})
+
+add_executable(kinectframe_broadcaster src/cpp/kinectframe_broadcaster.cpp)
+target_link_libraries(kinectframe_broadcaster ${catkin_LIBRARIES})
+
+
+
+
