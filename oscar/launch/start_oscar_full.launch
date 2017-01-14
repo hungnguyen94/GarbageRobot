@@ -1,0 +1,13 @@
+<launch>
+    <include file="$(find oscar)/launch/start_oscar.launch">
+        <arg name="navigation_auto" value="true" />
+        <arg name="navigation_goal_gen" value="true" />
+        <arg name="classification" value="true"/>
+        <arg name="kinect_connected" value="true"/>
+        <arg name="sonars_connected" value="true"/>
+        <arg name="base_controller" value="true"/>
+        <arg name="simulation" value="false"/>
+        <arg name="map_creation" value="false"/>
+        <arg name="state_controller" value="true"/>
+    </include>
+</launch>

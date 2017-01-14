@@ -1,19 +1,18 @@
 <launch>
-  <arg name="scan_topic" value="/kinect_scan2"/>
-  <arg name="scan_frame" value="/kinect_link"/>
-  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
-    <remap from="image"     to="/kinect/depth/image_raw"/>
-    <remap from="camera_info" to="/kinect/depth/camera_info"/>
-    <remap from="scan" to="$(arg scan_topic)"/>
-    <param name="range_max" type="double" value="4"/>
-    <param name="output_frame_id" value="$(arg scan_frame)"/>
-  </node>
+  <arg name="scan_topic"/>
+  <arg name="scan_frame"/>
+  <arg name="odom_frame" />
+  <arg name="base_frame" />
+  <arg name="map_frame" />
 
   <!-- SLAM -->
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
       <remap from="scan" to="$(arg scan_topic)" />
-      <!-- <param name="base_frame" value="base_footprint" />
-      <param name="odom_frame" value="odom"/>
+
+      <param name="base_frame" value="$(arg base_frame)" />
+      <param name="odom_frame" value="$(arg odom_frame)"/>
+      <param name="map_frame" value="$(arg map_frame)"/>
+      <!-- <param name="odom_frame" value="odom"/>
       <param name="map_update_interval" value="30.0"/>
       <param name="maxUrange" value="4.0"/>
       <param name="sigma" value="0.05"/>

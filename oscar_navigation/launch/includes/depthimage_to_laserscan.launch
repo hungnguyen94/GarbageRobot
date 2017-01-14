@@ -1,15 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="scan_topic" default="/kinect_scan"/>
-  <arg name="scan_frame" default="/kinect_link"/>
-  <arg name="camera_depth_info_topic" default="/kinect/depth/camera_info"/>
-  <arg name="camera_depth_image_topic" default="/kinect/depth/image_raw"/>
+  <arg name="scan_topic" />
+  <arg name="output_frame" />
+  <arg name="camera_depth_info_topic" />
+  <arg name="camera_depth_image_topic"/>
 
   <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" output="screen">
     <remap from="image"     to="$(arg camera_depth_image_topic)"/>
     <remap from="camera_info" to="$(arg camera_depth_info_topic)"/>
     <remap from="scan" to="$(arg scan_topic)"/>
     <param name="range_max" type="double" value="4"/>
-    <param name="output_frame_id" value="$(arg scan_frame)"/>
+    <param name="output_frame_id" value="$(arg output_frame)"/>
   </node>
 </launch>
