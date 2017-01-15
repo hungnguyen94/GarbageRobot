@@ -41,7 +41,16 @@
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
-    <!-- TODO add node publishing the sonar transforms -->
+    <node if="$(arg sonars_connected)" name="sonar_frame_broadcaster" pkg="oscar" type="sonarframe_broadcaster"  output="screen">
+      <param name="sonar_frame_rv" type="str" value="sonar_rv"/>
+      <param name="sonar_frame_lv" type="str" value="sonar_lv"/>
+      <param name="sonar_frame_rm" type="str" value="sonar_rm"/>
+      <param name="sonar_frame_lm" type="str" value="sonar_lm"/>
+      <param name="sonar_frame_rav" type="str" value="sonar_rav"/>
+      <param name="sonar_frame_lav" type="str" value="sonar_lav"/>
+      <param name="sonar_frame_laa" type="str" value="sonar_laa"/>
+      <param name="sonar_frame_raa" type="str" value="sonar_raa"/>
+    </node>
 
     <!-- Kinect -->
     <include if="$(arg kinect_connected)" file="$(find freenect_launch)/launch/freenect.launch">
@@ -75,7 +84,7 @@
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->
   <!-- ===================================================================== -->
-    
+
     <group if="$(arg navigation_auto)">
         <include file="$(find oscar_navigation)/launch/map_server.launch">
             <!-- TOPICS -->
