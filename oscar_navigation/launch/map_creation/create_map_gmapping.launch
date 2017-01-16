@@ -1,13 +1,6 @@
 <launch>
-  <arg name="scan_topic" value="/kinect_scan2"/>
+  <arg name="scan_topic" value="/kinect_scan"/>
   <arg name="scan_frame" value="/kinect_link"/>
-  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
-    <remap from="image"     to="/kinect/depth/image_raw"/>
-    <remap from="camera_info" to="/kinect/depth/camera_info"/>
-    <remap from="scan" to="$(arg scan_topic)"/>
-    <param name="range_max" type="double" value="4"/>
-    <param name="output_frame_id" value="$(arg scan_frame)"/>
-  </node>
 
   <!-- SLAM -->
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
@@ -43,4 +36,8 @@
       <param name="lasamplerange" value="0.005"/>
       <param name="lasamplestep" value="0.005"/> -->
     </node>
-    </launch>
+
+    <include file="$(find oscar_simulation)/launch/wii.launch"></include>
+    <arg name="rvizconfig" default="$(find oscar_navigation)/mapping.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+  </launch>
