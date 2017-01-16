@@ -4,13 +4,6 @@
   <arg name="camera_depth_info_topic" default="/kinect/depth/camera_info"/>
   <arg name="camera_depth_image_topic" default="/kinect/depth/image_raw"/>
 
-  <include file="$(find oscar_navigation)/includes/depthimage_to_laserscan.launch">
-    <arg name="scan_topic" value="$(arg scan_topic)"/>
-    <arg name="scan_frame" value="$(arg scan_frame)"/>
-    <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
-    <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
-  </include>
-
   <!-- SLAM -->
   <group ns="rtabmap">
     <include file="$(find oscar_navigation)/launch/includes/rtabmap_node.launch">
