@@ -1,33 +1,27 @@
 #!/usr/bin/env python
 
-import copy
+from __future__ import division
 import numpy as np
 import rospy
 import cv2
-from scipy import misc
+import tensorflow as tf
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from squeezenet import get_squeezenet
-from random import randrange
+from squeezenetv1_1 import SqueezeNet
 
 class KerasImageSubscriber:
-
     def __init__(self):
-        # self.model = get_squeezenet(1000, dim_ordering='tf')
-        # self.model.compile(loss="categorical_crossentropy", optimizer="adam")
-        # self.model.load_weights('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_weights_tf_dim_ordering_tf_kernels.h5', by_name=True)
-
-        # self.model = get_squeezenet(1000, dim_ordering='tf')
-        # model.compile(loss="categorical_crossentropy", optimizer="adam")
-        # self.model.load_weights('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_weights_tf_dim_ordering_tf_kernels.h5', by_name=True)
-        # self.init_model()
-
+        self.weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_v1.1_weights_30_epochs_100x100.h5'
+        self.input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
-        self.classes = []
-        with open('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/src/classes.txt', 'r') as list_:
-            for line in list_:
-                self.classes.append(line.rstrip('\n'))
+        self.classes = ['bottles', 'cans', 'cups', 'other']
+        self.graph = tf.Graph()
+
+        with self.graph.as_default():
+            self.model = SqueezeNet(len(self.classes), self.input_shape[0], self.input_shape[1], self.input_shape[2])
+            self.model.load_weights(self.weights_file, by_name=True)
+
         self.sub = rospy.Subscriber("image_topic", Image, self.classify)
 
 
@@ -38,38 +32,42 @@ class KerasImageSubscriber:
         :return:  Class of the image.
         """
 
-        # Convert image from ros imgmsg to opencv2 image.
-        # image = self.cv_bridge.imgmsg_to_cv2(img)
-
-        # if randrange(100) > 50:
-        #     return
-
-        if self.model is None:
-            self.model = get_squeezenet(1000, dim_ordering='tf')
-            self.model.compile(loss="categorical_crossentropy", optimizer="adam")
-            self.model.load_weights('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_weights_tf_dim_ordering_tf_kernels.h5', by_name=True)
-
         # frame = misc.imread('/mnt/data/Development/keras-squeezenet/images/cat.jpeg', mode='RGB')
         frame = self.cv_bridge.imgmsg_to_cv2(img) #, desired_encoding='8UC3')
 
-        height, width, depth = frame.shape
-        offset = min(height, width) / 2.0
-        centerX, centerY = (width / 2.0, height / 2.0)
+        height = frame.shape[0]
+        width = frame.shape[1]
+        offset = int(round(max(height, width) / 2.0))
 
-        cropped_frame = frame[centerY - offset: centerY + offset, centerX - offset: centerX + offset]
+        # Add borders to the images.
+        padded_img = cv2.copyMakeBorder(frame, offset, offset, offset, offset, cv2.BORDER_CONSTANT)
+        padded_height = padded_img.shape[0]
+        padded_width = padded_img.shape[1]
+        center_x = int(round(padded_width / 2.0))
+        center_y = int(round(padded_height / 2.0))
+        # Crop the square containing the full image.
+        cropped_frame = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
-        print "Frame: "
-        print type(frame)
-        print frame
+        # ts = int(time.time())
+        # cv2.imwrite('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_webcam_cv2_output/bottles/bottle-%s.jpg' % (ts), cropped_frame)
+        # print("write img")
 
-        image = cv2.resize(cropped_frame, (227, 227)).astype(np.float64)
+        # print "Frame: "
+        # print type(frame)
+        # print frame
+
+        resized_frame = cv2.resize(cropped_frame, (self.input_shape[0], self.input_shape[1]))
+        # image = frame.astype('float')
+        image = resized_frame.astype('float') / float(255)
+        # image /= 255.
 
         # aux = copy.copy(image)
         # image[:, :, 0] = aux[:, :, 2]
         # image[:, :, 2] = aux[:, :, 0]
-        print "Image: "
-        print type(image)
-        print image
+        # cv2.imwrite('/tmp/test2.jpg', image)
+        # print "Image: "
+        # print type(image)
+        # print image
 
 
         # Remove image mean
@@ -79,26 +77,26 @@ class KerasImageSubscriber:
 
 
         # frame2 = copy.copy(image)
-        frame2 = cv2.resize(frame, (227, 227)) #.astype(np.int8)
-        print "Frame2: "
-        print type(frame2)
-        print frame2
+        # frame2 = cv2.resize(frame, (227, 227)) #.astype(np.int8)
+        # print "Frame2: "
+        # print type(frame2)
+        # print frame2
 
         # image = np.transpose(image, (2, 0, 1))
         image = np.expand_dims(image, axis=0)
 
-        model = self.model
-
-        res = model.predict(image)
+        with self.graph.as_default():
+            res = self.model.predict(image)
 
         # classification_result = self.classes[np.argmax(res[0])]
-        results = res[0].argsort()[-5:][::-1]
+        results = res[0]
 
         for i in xrange(len(results)):
-            result = self.classes[results[i]]
-            text = '%.3f: %s' % (res[0][results[i]], result[9:])
-            # print(text)
-            cv2.putText(cropped_frame, text, (20, 50+20*i), cv2.FONT_HERSHEY_PLAIN, 0.75, (255,150,0),2)
+            clazz = self.classes[i]
+            text = '%.9f: %s' % (results[i], clazz)
+            print(text)
+            cv2.putText(cropped_frame, text, (20, 50+20*i), cv2.FONT_HERSHEY_PLAIN, 0.75, (255, 150, 0), 2)
+        print("")
 
         # text = 'class: ' + classification_result + ' acc: ' + str(res[0][np.argmax(res[0])])
         # print text
