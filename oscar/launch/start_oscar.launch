@@ -18,7 +18,7 @@
 
     <!-- TOPICS -->
     <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
-    <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
+    <arg value="/oscar/kinect/depth/camera_info" name="kinect_depth_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
     <arg value="/oscar/kinect/rgb/image_raw" name="kinect_rgb_image_topic" doc="The topic the kinect depth images will be published on" />
     <arg value="/oscar/kinect/rgb/camera_info" name="kinect_rgb_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
     <arg value="/cmd_vel" name="cmd_vel_topic" doc="Topic to send the movement commands for the base over" />
