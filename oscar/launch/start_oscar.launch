@@ -9,7 +9,7 @@
     <arg name="map_creation" />
     <arg name="state_controller" />
 
-    <arg name="base_controller" />
+
     <param name="use_sim_time" value="false"></param>
 
     <!-- ===================================================================== -->
@@ -17,8 +17,8 @@
     <!-- ===================================================================== -->
 
     <!-- TOPICS -->
-    <arg value="/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
-    <arg value="/kinect/depth/camera_info" name="kinect_depth_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
+    <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
+    <arg value="/oscar/kinect/depth/camera_info" name="kinect_depth_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
     <arg value="/cmd_vel" name="cmd_vel_topic" doc="Topic to send the movement commands for the base over" />
     <arg value="/map" name="map_topic" doc="The topic to publish the map on" />
     <arg value="/map_metadata" name="map_metadata_topic" doc="The topic to publish the map metadata on" />
@@ -52,23 +52,28 @@
       <param name="sonar_frame_raa" type="str" value="sonar_raa"/>
     </node>
 
+	<remap from="/kinect/depth/image" to="$(arg kinect_depth_image_topic)"/>
+	<remap from="/kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
     <!-- Kinect -->
     <include if="$(arg kinect_connected)" file="$(find freenect_launch)/launch/freenect.launch">
-        <arg name="depth_registration" value="$(arg depth_registration)" />
+        <arg name="depth_registration" value="false" />
         <arg name="camera" value="kinect" />
         <arg name="rgb_frame_id" value="$(arg kinect_rgb_frame)" />
         <arg name="depth_frame_id" value="$(arg kinect_depth_frame)" />
         <!-- May need to be changed -->
-        <arg name="publish_tf" value="false" />
+        <arg name="publish_tf" value="true" />
         <!-- May need to be changed -->
         <arg name="rgb_processing" value="false" />
         <arg name="depth_processing" value="true" />
         <!-- May need to be changed -->
         <arg name="depth_registered_processing" value="true" />
     </include>
+<!--	<remap from="kinect/depth/image_raw" to="$(arg kinect_depth_image_topic)"/>
+	<remap from="kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
+    -->
 
-    <!--  TODO verify if this eval works -->
-    <include if="$(eval navigation_auto OR map_creation) " file="$(find oscar_navigation)/includes/depthimage_to_laserscan.launch">
+    <!-- TODO add navigation auto check, needs to start then as well -->
+    <include if="$(arg map_creation)" file="$(find oscar_navigation)/launch/includes/depthimage_to_laserscan.launch">
         <arg name="scan_topic" value="$(arg scan_topic)" />
         <arg name="output_frame" value="$(arg kinect_depth_frame)" />
         <arg name="camera_depth_info_topic" value="$(arg kinect_depth_info_topic)" />
@@ -76,7 +81,7 @@
     </include>
 
    <!-- Converting twist messages to motor commands -->
-    <node name="base_controller" pkg="dpr4_base" type="velocity_listener.cpp" output="screen" >
+    <node name="base_controller" pkg="dpr4_base" type="velocity_listener" output="screen" >
       <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
     </node>
     <!-- TODO add state controller | unless="$(arg state_controller)" -->
