@@ -18,7 +18,9 @@
 
     <!-- TOPICS -->
     <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
-    <arg value="/oscar/kinect/depth/camera_info" name="kinect_depth_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
+    <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
+    <arg value="/oscar/kinect/rgb/image_raw" name="kinect_rgb_image_topic" doc="The topic the kinect depth images will be published on" />
+    <arg value="/oscar/kinect/rgb/camera_info" name="kinect_rgb_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
     <arg value="/cmd_vel" name="cmd_vel_topic" doc="Topic to send the movement commands for the base over" />
     <arg value="/map" name="map_topic" doc="The topic to publish the map on" />
     <arg value="/map_metadata" name="map_metadata_topic" doc="The topic to publish the map metadata on" />
@@ -52,12 +54,13 @@
       <param name="sonar_frame_raa" type="str" value="sonar_raa"/>
     </node>
 
-	<remap from="/kinect/depth/image" to="$(arg kinect_depth_image_topic)"/>
-	<remap from="/kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
+	<!-- <remap from="/camera/depth/image" to="$(arg kinect_depth_image_topic)"/>
+	<remap from="/camera/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
+	<remap from="/camera/rgb/camera_info" to="$(arg kinect_rgb_info_topic)"/>
+	<remap from="/camera/rgb/image" to="$(arg kinect_rgb_image_topic)"/> -->
     <!-- Kinect -->
     <include if="$(arg kinect_connected)" file="$(find freenect_launch)/launch/freenect.launch">
         <arg name="depth_registration" value="false" />
-        <arg name="camera" value="kinect" />
         <arg name="rgb_frame_id" value="$(arg kinect_rgb_frame)" />
         <arg name="depth_frame_id" value="$(arg kinect_depth_frame)" />
         <!-- May need to be changed -->
@@ -68,9 +71,24 @@
         <!-- May need to be changed -->
         <arg name="depth_registered_processing" value="true" />
     </include>
-<!--	<remap from="kinect/depth/image_raw" to="$(arg kinect_depth_image_topic)"/>
-	<remap from="kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
-    -->
+    <arg name="rate"  default="5"/>
+    <arg name="decimation"  default="1"/> <!-- Reduce the image size, e.g., 2 means "width/2 x height/2". -->
+
+     <!-- Use same nodelet used by Freenect/OpenNI -->
+
+     <node pkg="nodelet" type="nodelet" name="data_throttle" args="load rtabmap_ros/data_throttle camera_nodelet_manager" output="screen">
+       <param name="rate" type="double" value="$(arg rate)"/>
+       <param name="decimation" type="int" value="$(arg decimation)"/>
+
+       <remap from="rgb/image_in"       to="/camera/rgb/image_rect_color"/>
+       <remap from="depth/image_in"     to="/camera/depth_registered/image_raw"/>
+       <remap from="rgb/camera_info_in" to="/camera/rgb/camera_info"/>
+
+       <remap from="rgb/image_out"       to="$(arg kinect_rgb_image_topic)"/>
+       <remap from="depth/image_out"     to="$(arg kinect_depth_image_topic)"/>
+       <remap from="rgb/camera_info_out" to="$(arg kinect_rgb_info_topic)"/>
+     </node>
+
 
     <!-- TODO add navigation auto check, needs to start then as well -->
     <include if="$(arg map_creation)" file="$(find oscar_navigation)/launch/includes/depthimage_to_laserscan.launch">
