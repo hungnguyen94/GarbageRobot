@@ -7,28 +7,27 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
 import os
 
-training_dir = '../images/training_webcam_cv2_resized'
-training_dir2 = '../images/training_webcam_resized'
-val_dir = '../images/validation_webcam_cv2_resized'
-val_dir2 = '../images/validation_webcam_resized'
-start_weights_file = ''
-save_weights_file = '../models/squeezenet_webcam_v1.1_weights_30_epochs_80x80.h5'
-weights_target = "../models/squeezenet_webcam_weights_80x80.{epoch:02d}-loss_{val_loss:.5f}-acc_{val_acc:.5f}.h5"
 
 initial_epoch = 0
-nb_epoch = 30
-batch_size = 80
-samples_per_epoch = 600
+nb_epoch = 100
+batch_size = 50
+samples_per_epoch = 250
 nb_val_samples = 60
 
-input_shape = (224, 224, 3)
+input_shape = (100, 100, 3)
 width = input_shape[0]
 height = input_shape[1]
 channels = input_shape[2]
 
-classes = ['bottles', 'cans', 'cups', 'other']
-# classes = ['water_bottles', 'coca_cola_bottles', 'fanta_bottles', 'cola_cans', 'fanta_cans', 'paper_coffee_cups']
+training_dir = '../images/training_webcam_cv2_resized'
+training_dir2 = '../images/training_webcam_resized'
+val_dir = '../images/validation_webcam_cv2_resized'
+val_dir2 = '../images/validation_webcam_resized'
+save_weights_file = '../models/squeezenet_webcam_v1.1_weights_%s_epochs_%sx%s.h5' % (nb_epoch, width, height)
+start_weights_file = '' #save_weights_file
+weights_target = "../models/squeezenet_webcam_weights_%sx%s.{epoch:02d}-loss_{val_loss:.5f}-acc_{val_acc:.5f}.h5" % (width, height)
 
+classes = ['bottles', 'cans', 'cups', 'other']
 nb_classes = len(classes)
 
 train_datagen = ImageDataGenerator(
@@ -68,15 +67,17 @@ val_generator = test_datagen.flow_from_directory(val_dir,
                                                  classes=classes)
 
 val_generator2 = test_datagen.flow_from_directory(val_dir2,
-                                                 target_size=(width, height),
-                                                 batch_size=batch_size,
-                                                 class_mode='categorical',
-                                                 classes=classes)
-print('val datagen class indices: \n%s' % val_generator.class_indices)
+                                                  target_size=(width, height),
+                                                  batch_size=batch_size,
+                                                  class_mode='categorical',
+                                                  classes=classes)
+
 def val_generator3():
     while True:
         yield val_generator.next()
         yield val_generator2.next()
+
+print('val datagen class indices: \n%s' % val_generator.class_indices)
 
 checkpoint = ModelCheckpoint(weights_target, monitor='val_loss',
                              verbose=1, save_best_only=True,
@@ -84,9 +85,9 @@ checkpoint = ModelCheckpoint(weights_target, monitor='val_loss',
 
 print('Loading model..')
 model = SqueezeNet(nb_classes, width, height, channels)
-adam = Adam(lr=0.004)
+adam = Adam(lr=0.005)
 rmsprop = RMSprop(lr=0.005)
-model.compile(loss="categorical_crossentropy", optimizer=adam, metrics=['accuracy', 'categorical_crossentropy', 'binary_crossentropy'])
+model.compile(loss="binary_crossentropy", optimizer=rmsprop, metrics=['accuracy', 'categorical_crossentropy', 'binary_crossentropy'])
 if os.path.isfile(start_weights_file):
         print('Loading weights: %s' % start_weights_file)
         model.load_weights(start_weights_file, by_name=True)
@@ -104,6 +105,7 @@ print("Finished fitting model")
 
 print('Saving weights')
 model.save_weights(save_weights_file, overwrite=True)
+print('Done')
 # print('Evaluating model')
 #score = model.evaluate_generator(val_generator, val_samples=nb_val_samples)
 #print('result: %s' % score)

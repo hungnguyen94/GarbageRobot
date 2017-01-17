@@ -6,9 +6,9 @@ from squeezenetv1_1 import SqueezeNet
 
 classes = ['bottles', 'cans', 'cups', 'other']
 
-input_shape = (100, 100, 3)
+input_shape = (67, 67, 3)
 # weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights.50-0.98438.h5'
-weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights.12-0.09206-0.97959.h5'
+weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights_67x67.83-loss_0.09716-acc_0.98438.h5'
 model = SqueezeNet(len(classes), input_shape[0], input_shape[1], input_shape[2])
 model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['accuracy'])
 if os.path.isfile(weights_file):
