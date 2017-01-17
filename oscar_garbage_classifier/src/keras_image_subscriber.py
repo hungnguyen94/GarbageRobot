@@ -8,15 +8,17 @@ import tensorflow as tf
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from squeezenetv1_1 import SqueezeNet
+import copy
 
 class KerasImageSubscriber:
     def __init__(self):
-        self.weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_v1.1_weights_30_epochs_100x100.h5'
-        self.input_shape = (100, 100, 3)
+        self.weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
+        self.input_shape = (300, 300, 3)
         self.model = None
         self.cv_bridge = CvBridge()
         self.classes = ['bottles', 'cans', 'cups', 'other']
         self.graph = tf.Graph()
+        self.rotation_matrix = cv2.getRotationMatrix2D((self.input_shape[0]/2, self.input_shape[1]/2), 90, 1)
 
         with self.graph.as_default():
             self.model = SqueezeNet(len(self.classes), self.input_shape[0], self.input_shape[1], self.input_shape[2])
@@ -57,13 +59,16 @@ class KerasImageSubscriber:
         # print frame
 
         resized_frame = cv2.resize(cropped_frame, (self.input_shape[0], self.input_shape[1]))
+
+        rotated_frame = cv2.warpAffine(resized_frame, self.rotation_matrix, (self.input_shape[0], self.input_shape[1]))
         # image = frame.astype('float')
-        image = resized_frame.astype('float') / float(255)
+        fr = rotated_frame
+        image = fr.astype(np.float64) / float(255)
         # image /= 255.
 
-        # aux = copy.copy(image)
-        # image[:, :, 0] = aux[:, :, 2]
-        # image[:, :, 2] = aux[:, :, 0]
+        aux = copy.copy(image)
+        image[:, :, 0] = aux[:, :, 2]
+        image[:, :, 2] = aux[:, :, 0]
         # cv2.imwrite('/tmp/test2.jpg', image)
         # print "Image: "
         # print type(image)
@@ -76,36 +81,21 @@ class KerasImageSubscriber:
         # image[:, :, 2] -= 122.679
 
 
-        # frame2 = copy.copy(image)
-        # frame2 = cv2.resize(frame, (227, 227)) #.astype(np.int8)
-        # print "Frame2: "
-        # print type(frame2)
-        # print frame2
-
-        # image = np.transpose(image, (2, 0, 1))
         image = np.expand_dims(image, axis=0)
 
         with self.graph.as_default():
             res = self.model.predict(image)
 
-        # classification_result = self.classes[np.argmax(res[0])]
         results = res[0]
 
         for i in xrange(len(results)):
             clazz = self.classes[i]
             text = '%.9f: %s' % (results[i], clazz)
             print(text)
-            cv2.putText(cropped_frame, text, (20, 50+20*i), cv2.FONT_HERSHEY_PLAIN, 0.75, (255, 150, 0), 2)
+            cv2.putText(fr, text, (20, 50+20*i), cv2.FONT_HERSHEY_PLAIN, 0.75, (255, 150, 0), 2)
         print("")
 
-        # text = 'class: ' + classification_result + ' acc: ' + str(res[0][np.argmax(res[0])])
-        # print text
-
-        # result = self.classes[np.argmax(res[0])]
-        # print result
-        # cv2.putText(frame, text, (20, 50+20), cv2.FONT_HERSHEY_PLAIN, 1.0, (255,150,0),2)
-        #
-        cv2.imshow("Keras", cropped_frame)
+        cv2.imshow("Keras", fr)
         cv2.waitKey(1)
 
 
