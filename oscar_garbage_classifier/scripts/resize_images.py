@@ -2,6 +2,8 @@
 
 import cv2
 
+img_x = 300
+img_y = 300
 
 def resize_image(img_path):
     # Load image with 3 channel colors
@@ -19,9 +21,12 @@ def resize_image(img_path):
     # Crop the square containing the full image.
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
-    # Resize image to 227, 227
-    resized_image = cv2.resize(cropped_img, (227, 227))
-    return resized_image
+    # Resize image 
+    resized_image = cv2.resize(cropped_img, (img_x, img_y))
+    # Rotate image 90 degrees
+    M = cv2.getRotationMatrix2D((img_x/2, img_y/2), 90, 1)
+    image = cv2.warpAffine(resized_image, M, (img_x, img_y))
+    return image
 
 
 if __name__ == '__main__':
@@ -37,8 +42,8 @@ if __name__ == '__main__':
             else:
                 raise
 
-    images_dir = '/mnt/data/Development/ros/catkin_ws/images/webcam_img/'
-    output_dir = '/mnt/data/Development/ros/catkin_ws/images/resized'
+    images_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/validation_webcam_resized'
+    output_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/validation_webcam_cv2_resized_rotated'
 
     for subdir, dirs, files in os.walk(images_dir):
         for f in files:
