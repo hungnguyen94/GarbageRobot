@@ -4,7 +4,7 @@ from __future__ import print_function
 import rospy
 from oscar_garbage_classifier.srv import ClassifyImage
 
-classes = ['bottles', 'cans', 'cups']
+classes = ['bottles', 'cans', 'cups', 'other']
 cam_index = 0
 
 cups_pin = 1
