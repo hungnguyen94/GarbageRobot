@@ -53,6 +53,8 @@ if __name__ == '__main__':
     from cv_bridge import CvBridge
 
     cam = cv2.VideoCapture(cam_index)
+    cam.set(3, 1280)
+    cam.set(4, 720)
     ret, img = cam.read()
     imgmsg = CvBridge().cv2_to_imgmsg(img)
     result = classify_image(imgmsg)
