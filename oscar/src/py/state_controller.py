@@ -112,6 +112,6 @@ def classify_garbage():
     try:
         add_two_ints = rospy.ServiceProxy('image_classify', AddTwoInts)
         result = image_classify(image)(x, y)
-        return resp1.sum
+        return result.prediction
     except rospy.ServiceException, e:
         print "Service call image_classify failed: %s"%e
