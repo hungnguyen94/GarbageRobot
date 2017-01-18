@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 
-from squeezenet import SqueezeNet
+from squeezenetv1_1 import SqueezeNet
 from keras.utils.np_utils import to_categorical
 import numpy as np
 import os
 import cv2
 
-images_dir = './images'
-weights_file = './weights.h5'
+# images_dir = '../images/training_resized/bottles'
+images_dir = '/home/hung/Pictures/Webcam'
+weights_file = '../models/squeezenet_sigmoid_v1.1_weights.h5'
 nb_epoch = 1
 batch_size = 32
 
-decode = ['coca_cola_bottles', 'fanta_bottle', 'cola_cans', 'fanta_cans', 'paper_coffee_cups', 'water_bottles']
+classes = ['bottles', 'cans', 'cups', 'other']
+
+# classes = ['water_bottles', 'coca_cola_bottles', 'fanta_bottles', 'cola_cans', 'fanta_cans', 'paper_coffee_cups']
 # decode = []
 # with open('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/src/classes.txt', 'r') as list_:
     # for line in list_:
@@ -36,7 +39,7 @@ def load_image(img_path):
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
     # Resize image to 227, 227 as Squeezenet only accepts this format.
-    resized_image = cv2.resize(cropped_img, (227, 227)).astype(np.float64)
+    resized_image = cv2.resize(cropped_img, (100, 100)).astype(np.float64)
     resized_image /= 255
     return resized_image
 
@@ -45,13 +48,15 @@ print('Loading images..')
 paths = [os.path.join(subdir, f)
                   for subdir, dirs, files in os.walk(images_dir)
                   for f in files if f.endswith('.jpg')]
+paths = paths[0:30]
 
 images = [load_image(path) for path in paths]
-nr_classes = len(decode)
+nr_classes = len(classes)
 images = np.array(images)
 
 print('Loading model..')
-model = SqueezeNet(nr_classes)
+model = SqueezeNet(nr_classes, 70,
+                   70, 3)
 model.compile(loss="categorical_crossentropy", optimizer="adam")
 if os.path.isfile(weights_file):
     print('Loading weights...')
@@ -63,12 +68,13 @@ print("Classifying images...")
 for i in xrange(len(images)):
     img = np.expand_dims(images[i], axis=0)
     res = model.predict(img)
-    results = res[0].argsort()[-5:][::-1]
-    print('%s: ' % paths[i])
-    for j in xrange(len(results)):
-        result = decode[results[j]]
-        text = '%.3f: %s' % (res[0][results[j]], result)
-        print(text)
+    print res
+    # results = res[0].argsort()[-5:][::-1]
+    # print('%s: ' % paths[i])
+    # for j in xrange(len(results)):
+    #     result = decode[results[j]]
+    #     text = '%.3f: %s' % (res[0][results[j]], result)
+    #     print(text)
 
     # confidences = predictions[i].argsort()[-5:][::-1]
     # result_classes = [(decode_dict[c]) for c in confidences]
