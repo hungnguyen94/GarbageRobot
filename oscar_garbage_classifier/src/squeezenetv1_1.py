@@ -86,7 +86,7 @@ def SqueezeNet(nb_classes, rows=227, cols=227, channels=3):
     conv10 = LeakyReLU()(conv10)
     avgpool10 = GlobalAveragePooling2D(name='pool10')(conv10)
     loss = Activation('softmax', name='softmax')(avgpool10)
-    # loss2 = Activation('sigmoid', name='sigmoid')(avgpool10)
+    # loss = Activation('sigmoid', name='sigmoid')(avgpool10)
 
     model = Model(input=input_image, output=loss)
     return model
