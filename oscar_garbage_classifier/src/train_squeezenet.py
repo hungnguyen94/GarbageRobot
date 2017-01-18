@@ -5,6 +5,7 @@ from squeezenetv1_1 import SqueezeNet
 from keras.optimizers import Adam, RMSprop, Nadam
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
+from keras.metrics import top_k_categorical_accuracy
 import os
 
 
@@ -32,7 +33,7 @@ nb_classes = len(classes)
 
 train_datagen = ImageDataGenerator(
         rescale=1./255,
-        shear_range=0.05,
+        shear_range=0.15,
         width_shift_range=0.05,
         rotation_range=1.,
         height_shift_range=0.05,
@@ -79,6 +80,9 @@ def val_generator3():
 
 print('val datagen class indices: \n%s' % val_generator.class_indices)
 
+def top_1_categorical_accuracy(y_true, y_pred, k=1):
+    return top_k_categorical_accuracy(y_true, y_pred, k)
+
 checkpoint = ModelCheckpoint(weights_target, monitor='val_loss',
                              verbose=1, save_best_only=True,
                              save_weights_only=True, mode='auto')
@@ -87,7 +91,7 @@ print('Loading model..')
 model = SqueezeNet(nb_classes, width, height, channels)
 adam = Adam(lr=0.005)
 rmsprop = RMSprop(lr=0.005)
-model.compile(loss="binary_crossentropy", optimizer=rmsprop, metrics=['accuracy', 'categorical_crossentropy', 'binary_crossentropy'])
+model.compile(loss=top_1_categorical_accuracy, optimizer='rmsprop', metrics=[top_k_categorical_accuracy, 'accuracy', 'precision', 'recall', 'categorical_crossentropy', 'binary_crossentropy'])
 if os.path.isfile(start_weights_file):
         print('Loading weights: %s' % start_weights_file)
         model.load_weights(start_weights_file, by_name=True)
