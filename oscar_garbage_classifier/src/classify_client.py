@@ -7,9 +7,9 @@ from oscar_garbage_classifier.srv import ClassifyImage
 classes = ['bottles', 'cans', 'cups', 'other']
 cam_index = 0
 
-cups_pin = 1
-pmd_pin = 2
-other_pin = 3
+cups_pin = 36
+pmd_pin = 38
+other_pin = 40
 
 
 def init_rpi_gpio():
