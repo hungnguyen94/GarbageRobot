@@ -5,7 +5,8 @@ from std_msgs.msg import String
 from oscar.msg import gpio
 from enum import Enum
 import RPi.GPIO as GPIO
-import pin_behaviour
+import cv2
+from cv_bridge import CvBridge
 
 configPath= 'cfg/rpi_pins.cfg'
 pinDefs_input = {}
@@ -106,12 +107,24 @@ def fill_level(data):
     elif currentState == State.full:
         currentState = State.interacting
 # =============================================================
-
-def classify_garbage():
+def classify_image(image):
+    """
+    Create a request to the classify image service.
+    :param image: Image to be classified.
+    :return: Integer representing the predicted class.
+    """
     rospy.wait_for_service('image_classify')
     try:
-        add_two_ints = rospy.ServiceProxy('image_classify', AddTwoInts)
-        result = image_classify(image)(x, y)
+        image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
+        result = image_classify(image)
         return result.prediction
     except rospy.ServiceException, e:
         print "Service call image_classify failed: %s"%e
+
+def classify_garbage():
+    cam = cv2.VideoCapture(cam_index)
+    cam.set(3, 1280)
+    cam.set(4, 720)
+    ret, img = cam.read()
+    imgmsg = CvBridge().cv2_to_imgmsg(img)
+    return classify_image(imgmsg)
