@@ -14,7 +14,7 @@ Panels:
         - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.556541026
-    Tree Height: 566
+    Tree Height: 567
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -112,6 +112,9 @@ Visualization Manager:
           Class: rviz/Path
           Color: 25; 255; 0
           Enabled: true
+          Head Diameter: 0.300000012
+          Head Length: 0.200000003
+          Length: 0.300000012
           Line Style: Lines
           Line Width: 0.0299999993
           Name: Global path
@@ -119,6 +122,10 @@ Visualization Manager:
             X: 0
             Y: 0
             Z: 0
+          Pose Style: None
+          Radius: 0.0299999993
+          Shaft Diameter: 0.100000001
+          Shaft Length: 0.100000001
           Topic: /move_base_node/TrajectoryPlannerROS/global_plan
           Unreliable: false
           Value: true
@@ -154,11 +161,19 @@ Visualization Manager:
           Topic: /move_base_node/local_costmap/costmap
           Unreliable: false
           Value: true
-        - Arrow Length: 0.200000003
+        - Alpha: 1
+          Arrow Length: 0.200000003
+          Axes Length: 0.300000012
+          Axes Radius: 0.00999999978
           Class: rviz/PoseArray
           Color: 170; 170; 127
           Enabled: false
+          Head Length: 0.0700000003
+          Head Radius: 0.0299999993
           Name: Particlecloud
+          Shaft Length: 0.230000004
+          Shaft Radius: 0.00999999978
+          Shape: Arrow (Flat)
           Topic: /particlecloud
           Unreliable: false
           Value: false
@@ -206,6 +221,9 @@ Visualization Manager:
           Class: rviz/Path
           Color: 255; 0; 255
           Enabled: true
+          Head Diameter: 0.300000012
+          Head Length: 0.200000003
+          Length: 0.300000012
           Line Style: Lines
           Line Width: 0.0299999993
           Name: local plan
@@ -213,6 +231,10 @@ Visualization Manager:
             X: 0
             Y: 0
             Z: 0
+          Pose Style: None
+          Radius: 0.0299999993
+          Shaft Diameter: 0.100000001
+          Shaft Length: 0.100000001
           Topic: /move_base_node/TrajectoryPlannerROS/local_plan
           Unreliable: false
           Value: true
@@ -229,6 +251,12 @@ Visualization Manager:
           Value: true
         camera_depth_optical_frame:
           Value: true
+        camera_link:
+          Value: true
+        camera_rgb_frame:
+          Value: true
+        camera_rgb_optical_frame:
+          Value: true
         map:
           Value: true
         odom:
@@ -239,20 +267,23 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          {}
-        odom:
-          base_link:
+        base_link:
+          camera_link:
             camera_depth_frame:
-              {}
-            camera_depth_optical_frame:
-              {}
+              camera_depth_optical_frame:
+                {}
+            camera_rgb_frame:
+              camera_rgb_optical_frame:
+                {}
+        map:
+          odom:
+            {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -281,7 +312,7 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 89.7793121
+      Scale: 0.910858452
       Target Frame: base_link
       Value: TopDownOrtho (rviz)
       X: 0.292929649
@@ -293,7 +324,7 @@ Window Geometry:
   Height: 846
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001c5000002c4fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005e00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000002c4000000d000fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000002c4fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000028000002c4000000a900fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000066d0000003efc0100000002fb0000000800540069006d006501000000000000066d0000030000fffffffb0000000800540069006d006501000000000000045000000000000000000000038d000002c400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001c5000002c6fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006100fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000002c6000000d700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000002c6fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000028000002c6000000ad00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000066d0000003efc0100000002fb0000000800540069006d006501000000000000066d0000030700fffffffb0000000800540069006d006501000000000000045000000000000000000000038d000002c600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:

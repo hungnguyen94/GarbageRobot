@@ -15,9 +15,9 @@
         <remap from="odom" to="/odom"/>
         <remap from="scan" to="/kinect_scan"/>
 
-        <remap from="rgb/image" to="/kinect/rgb/image_raw"/>
-        <remap from="depth/image" to="/kinect/depth/image_raw"/>
-        <remap from="rgb/camera_info" to="/kinect/rgb/camera_info"/>
+        <remap from="rgb/image" to="/camera/rgb/image_rect_color"/>
+        <remap from="depth/image" to="/camera/depth_registered/image_raw"/>
+        <remap from="rgb/camera_info" to="/camera/rgb/camera_info"/>
 
         <!-- <remap from="/rtabmap/grid_map" to="/map" /> -->
 
@@ -34,7 +34,7 @@
         <param name="Optimizer/Slam2D"          type="string" value="true"/>
         <param name="Reg/Strategy"              type="string" value="1"/> <!-- 1=ICP -->
         <param name="Reg/Force3DoF"             type="string" value="true"/>
-        <param name="Vis/MaxDepth"              type="string" value="4.0"/>
+        <param name="Vis/MaxDepth"              type="string" value="10.0"/>
         <param name="Vis/MinInliers"            type="string" value="5"/>
         <param name="Vis/InlierDistance"        type="string" value="0.05"/>
         <param name="Rtabmap/TimeThr"           type="string" value="700"/>
