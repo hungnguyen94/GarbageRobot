@@ -48,8 +48,8 @@ def readConfig():
     for (name, pin_number) in config.items(GPIO_out):
         pinDefs_output[name] = pin_number
 
-    sorting_output[0] = sorting_output["class_can"]
-    sorting_output[1] = sorting_output["class_bottle"]
+    sorting_output[0] = sorting_output["class_bottle"]
+    sorting_output[1] = sorting_output["class_can"]
     sorting_output[2] = sorting_output["class_coffee"]
     sorting_output[3] = sorting_output["class_residual"]
 
