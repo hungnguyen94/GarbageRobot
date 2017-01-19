@@ -1,4 +1,5 @@
 <launch>
+<<<<<<< HEAD
     <arg name="navigation_auto" />
     <arg name="navigation_goal_gen" />
     <arg name="classification" />
@@ -38,6 +39,48 @@
     <!-- ======================= Sensors and general stuff==================== -->
     <!-- ===================================================================== -->
 
+=======
+  <arg name="navigation" default="true" />
+  <arg name="classification" default="true" />
+  <arg name="kinect_connected" default="true"/>
+  <param name="use_sim_time" value="false"></param >
+
+  <!-- ===================================================================== -->
+  <!-- ======================= Settings ==================================== -->
+  <!-- ===================================================================== -->
+
+  <!-- Location of the map to navigate in -->
+  <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
+  <!-- The resolution of the map defined in $(arg map_location) -->
+  <arg name="map_resolution" value="0.05"/>
+  <!-- The topic to publish the map on -->
+  <arg name="map_topic"  value="/map"/>
+  <!-- The topic to publish the map metadata on -->
+  <arg name="map_metadata_topic"  value="/map_metadata"/>
+  <!-- The frame to use for the map -->
+  <arg name="map_frame" value="/map" />
+  <!-- The topic the scan data (converted from the kinect depthimages) will be published on -->
+  <arg name="scan_topic" value="/kinect_scan"/>
+  <!-- The frame to use for the scan data -->
+  <arg name="scan_frame" value="/kinect_link"/>
+  <!-- The topic the kinect depth camera info messages will be published on -->
+  <arg name="camera_depth_info_topic" value="/kinect/depth/camera_info"/>
+  <!-- The topic the kinect depth images will be published on -->
+  <arg name="camera_depth_image_topic" value="/kinect/depth/image_raw"/>
+  <!-- The frame to use for the odomotry of the robot -->
+  <arg name="odom_frame" value="/odom"/>
+  <arg name="odom_topic" value="/odom"/>
+
+  <!-- Topic to send the movement commands for the base over -->
+  <arg name="cmd_vel_topic" value="/cmd_vel"/>
+
+  <!-- ===================================================================== -->
+  <!-- ======================= Sensors and general stuff==================== -->
+  <!-- ===================================================================== -->
+
+
+
+>>>>>>> origin/garbage_classifier
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
@@ -80,12 +123,14 @@
         <arg name="camera_depth_image_topic" value="$(arg kinect_depth_image_topic)" />
     </include>
 
+
    <!-- Converting twist messages to motor commands -->
     <node name="base_controller" pkg="dpr4_base" type="velocity_listener" output="screen" >
       <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
     </node>
 
     <node if="$(arg state_controller)" name="state_controller" pkg="oscar" type="state_controller" output="screen" />
+
 
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->

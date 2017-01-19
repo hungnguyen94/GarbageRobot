@@ -1,5 +1,6 @@
-
 # Created by https://www.gitignore.io/api/c++,python,ros,virtualenv,intellij
+./oscar_garbage_classifier/src/images/*
+./oscar_garbage_classifier/src/validation/*
 
 ### C++ ###
 # Prerequisites

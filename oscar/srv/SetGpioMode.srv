@@ -1,5 +1,0 @@
-#request
-uint8 pinNumber
-int8 mode #0 for INPUT, 1 for OUTPUT
----
-string message

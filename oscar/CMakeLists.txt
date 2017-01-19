@@ -23,17 +23,14 @@ include_directories(${catkin_INCLUDE_DIRS})
 ################################################
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  gpio.msg
-)
+#add_message_files(
+#  FILES
+#)
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-	SetGpioMode.srv
-	SetGpioValue.srv
-)
+#add_service_files(
+#  FILES
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -43,10 +40,10 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
- DEPENDENCIES
- std_msgs  # Or other packages containing msgs
-)
+#generate_messages(
+# DEPENDENCIES
+# std_msgs  # Or other packages containing msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -164,3 +161,10 @@ catkin_package(
 
 add_executable(sonarframe_broadcaster src/cpp/sonarframe_broadcaster.cpp)
 target_link_libraries(sonarframe_broadcaster ${catkin_LIBRARIES})
+
+add_executable(kinectframe_broadcaster src/cpp/kinectframe_broadcaster.cpp)
+target_link_libraries(kinectframe_broadcaster ${catkin_LIBRARIES})
+
+
+
+

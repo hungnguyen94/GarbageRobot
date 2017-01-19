@@ -30,9 +30,12 @@ def FireModule(s_1x1, e_1x1, e_3x3, name):
     
 
 
-def SqueezeNet(nb_classes, input_shape=(227, 227, 3)): 
+def SqueezeNet(nb_classes, rows=227, cols=227, channels=3, input_shape=(227, 227, 3)):
     # Use input shape (227, 227, 3) instead of the (224, 224, 3) shape cited in the paper. 
-    # This results in conv1 output shape = (None, 111, 111, 96), same as in the paper. 
+    # This results in conv1 output shape = (None, 111, 111, 96), same as in the paper.
+    print("SqueezeNet V1.0")
+    input_shape = (rows, cols, channels)
+
     input_image = Input(shape=input_shape)
     conv1 = Convolution2D(96, 7, 7, activation='relu', subsample=(2, 2), init='he_normal', name='conv1')(input_image)
     # conv1 = BatchNormalization(name='conv1_bn')(conv1)
@@ -69,7 +72,7 @@ def SqueezeNet(nb_classes, input_shape=(227, 227, 3)):
     avgpool10 = GlobalAveragePooling2D(name='avgpool10')(conv10)
     # avgpool10 = AveragePooling2D(pool_size=(13, 13), strides=(1, 1), name='avgpool10')(conv10)
     # avgpool10 = Flatten(name='flatten')(avgpool10)
-    softmax = Activation('softmax', name='softmax')(avgpool10)
+    softmax = Activation('softmax', name='sigmoid')(avgpool10)
 
     model = Model(input=input_image, output=[softmax])
     return model

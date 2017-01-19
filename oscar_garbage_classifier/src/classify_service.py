@@ -11,13 +11,14 @@ import rospy
 
 
 weights = './weights_v1.1.h5'
-classes = ['coca_cola_bottles', 'fanta_bottle', 'cola_cans', 'fanta_cans', 'paper_coffee_cups', 'water_bottles']
-classes_mapping = {'coca_cola_bottles': 0, 'fanta_bottle': 0, 'cola_cans': 1, 'fanta_cans': 1, 'paper_coffee_cups': 2, 'water_bottles': 0}
-reduced_classes = ['bottles', 'cans', 'cups']
+classes = ['bottles', 'cans', 'cups', 'other']
 
 sq_graph = tf.Graph()
 squeezenet = None
+input_width = 300
+input_height = 300
 
+rotation_matrix = cv2.getRotationMatrix2D((input_width/2, input_height/2), 90, 1)
 
 def load_squeezenet():
     """
@@ -28,7 +29,7 @@ def load_squeezenet():
     """
     with sq_graph.as_default():
         global squeezenet
-        squeezenet = SqueezeNet(6, input_shape=(227, 227, 3))
+        squeezenet = SqueezeNet(len(classes), input_width, input_height, 3)
         squeezenet.load_weights(weights, by_name=True)
         return squeezenet
 
@@ -50,20 +51,7 @@ def classify(img):
     top = result.argsort()[-1::][0]
     rospy.loginfo('Top result of 6 classes: %s with confidence %s' % (classes[top], result[top]))
 
-    print('')
-    for res in zip(classes, result):
-        print(res)
-    print('')
-
-    reduced_results = np.array([0.0, 0.0, 0.0])
-    for i in xrange(len(result)):
-        confidence = result[i]
-        cl = classes[i]
-        index = classes_mapping[cl]
-        reduced_results[index] += confidence
-
-    top_index = reduced_results.argsort()[-1::][0]
-    return top_index
+    return top
 
 
 def preprocess_image(img):
@@ -89,11 +77,15 @@ def preprocess_image(img):
     # Crop the square containing the full image.
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
-    # Resize image to 227, 227 as Squeezenet only accepts this format.
-    resized_image = cv2.resize(cropped_img, (227, 227)).astype('float32')
+    # Resize image to 300, 300 as Squeezenet only accepts this format.
+    resized_image = cv2.resize(cropped_img, (input_width, input_height)).astype('float32')
     resized_image /= 255
-    resized_image = np.expand_dims(resized_image, axis=0)
-    return resized_image
+    
+    # Rotate image 90 degrees
+    image = cv2.warpAffine(resized_image, rotation_matrix, (input_width, input_height))
+    
+    image = np.expand_dims(image, axis=0)
+    return image
 
 
 def handle_service(request):

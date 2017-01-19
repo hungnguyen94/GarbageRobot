@@ -4,12 +4,12 @@ from __future__ import print_function
 import rospy
 from oscar_garbage_classifier.srv import ClassifyImage
 
-classes = ['bottles', 'cans', 'cups']
+classes = ['bottles', 'cans', 'cups', 'other']
 cam_index = 0
 
-cups_pin = 1
-pmd_pin = 2
-other_pin = 3
+cups_pin = 36
+pmd_pin = 38
+other_pin = 40
 
 
 def init_rpi_gpio():
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     from cv_bridge import CvBridge
 
     cam = cv2.VideoCapture(cam_index)
+    cam.set(3, 1280)
+    cam.set(4, 720)
     ret, img = cam.read()
     imgmsg = CvBridge().cv2_to_imgmsg(img)
     result = classify_image(imgmsg)
