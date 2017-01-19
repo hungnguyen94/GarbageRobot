@@ -12,12 +12,14 @@ configPath= 'cfg/rpi_pins.cfg'
 pinDefs_input = {}
 pinDefs_output = {}
 sorting_output = {}
-currentState = State.driving
 
 class State(Enum):
     driving = 0
     interacting = 1
     full = 2
+
+currentState = State.driving
+
 
 def GPIO_input_falling(pin):
     if pin in pinDefs_input:
@@ -41,12 +43,13 @@ def setupPins():
         GPIO.setup(key,GPIO.OUT)
 
 def readConfig():
-    config = ConfigParser.RawConfigParser()
+    config = ConfigParser.ConfigParser()
     config.read(configPath)
-    for (name, pin_number) in config.items(GPIO_in):
+    print  config.sections()
+    for (name, pin_number) in config.items('GPIO_in'):
         pinDefs_input[pin_number] = name
 
-    for (name, pin_number) in config.items(GPIO_out):
+    for (name, pin_number) in config.items('GPIO_out'):
         pinDefs_output[name] = pin_number
 
     sorting_output[0] = sorting_output["class_bottle"]

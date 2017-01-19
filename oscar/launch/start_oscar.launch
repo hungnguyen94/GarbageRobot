@@ -134,7 +134,7 @@
     <!-- ===================================================================== -->
 
     <group if="$(arg classification)">
-      <node name="image_classify_service" pkg="oscar_garbage_classifier" type="image_classify_service.py" output="screen" />
+      <node name="image_classify_service" pkg="oscar_garbage_classifier" type="classify_service.py" output="screen" />
     </group>
 
 </launch>
