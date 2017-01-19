@@ -31,7 +31,7 @@ int main(int argc, char** argv){
 	
     transform.setOrigin( tf::Vector3(-0.015-x0, 0-y0, 0.73-z0) );
 	transform.setRotation( tf::Quaternion(tf::createQuaternionFromRPY(0,0,0) ));
-        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", 		"kinect"));
+        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", 		"camera_link"));
    
    
 
