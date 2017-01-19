@@ -84,7 +84,8 @@
     <node name="base_controller" pkg="dpr4_base" type="velocity_listener" output="screen" >
       <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
     </node>
-    <!-- TODO add state controller | unless="$(arg state_controller)" -->
+
+    <node if="$(arg state_controller)" name="state_controller" pkg="oscar" type="state_controller" output="screen" />
 
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->
@@ -130,6 +131,8 @@
     <!-- ======================= Garbage classification ====================== -->
     <!-- ===================================================================== -->
 
-    <group if="$(arg classification)"></group>
+    <group if="$(arg classification)">
+      <node name="image_classify_service" pkg="oscar_garbage_classifier" type="image_classify_service" output="screen" />
+    </group>
 
 </launch>
