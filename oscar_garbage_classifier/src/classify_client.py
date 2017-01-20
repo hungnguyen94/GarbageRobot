@@ -57,9 +57,9 @@ if __name__ == '__main__':
     from cv_bridge import CvBridge
     from time import sleep
 
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT, initial=GPIO.LOW)
+    # import RPi.GPIO as GPIO
+    # GPIO.setmode(GPIO.BOARD)
+    # GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT, initial=GPIO.LOW)
 
     cam = cv2.VideoCapture(cam_index)
     cam.set(3, 1280)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     cam.release()
     imgmsg = CvBridge().cv2_to_imgmsg(img)
     result = classify_image(imgmsg)
-    invoke_sorter(classes[result])
-    GPIO.cleanup()
+    # invoke_sorter(classes[result])
+    # GPIO.cleanup()
 
 

@@ -22,10 +22,10 @@ def resize_image(img_path):
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
     # Resize image 
-    resized_image = cv2.resize(cropped_img, (img_x, img_y))
+    image = cv2.resize(cropped_img, (img_x, img_y))
     # Rotate image 90 degrees
     M = cv2.getRotationMatrix2D((img_x/2, img_y/2), 90, 1)
-    image = cv2.warpAffine(resized_image, M, (img_x, img_y))
+    image = cv2.warpAffine(image, M, (img_x, img_y))
     return image
 
 
@@ -42,8 +42,8 @@ if __name__ == '__main__':
             else:
                 raise
 
-    images_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/validation_webcam_resized'
-    output_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/validation_webcam_cv2_resized_rotated'
+    images_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_detector/test'
+    output_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_detector'
 
     for subdir, dirs, files in os.walk(images_dir):
         for f in files:

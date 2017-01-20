@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 from squeezenetv1_1 import SqueezeNet
 import tensorflow as tf
+import keras.backend as K
 from oscar_garbage_classifier.srv import ClassifyImage
 from cv_bridge import CvBridge
 import cv2
@@ -15,6 +16,9 @@ weights = '../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00
 classes = ['bottles', 'cans', 'cups', 'other']
 
 sq_graph = tf.Graph()
+sq_sess = tf.Session(graph=sq_graph)
+K.set_session(sq_sess)
+
 squeezenet = None
 input_width = 300
 input_height = 300
