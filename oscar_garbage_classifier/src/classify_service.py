@@ -8,9 +8,10 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import rospy
+import copy
 
 
-weights = './weights_v1.1.h5'
+weights = '../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
 classes = ['bottles', 'cans', 'cups', 'other']
 
 sq_graph = tf.Graph()
@@ -37,7 +38,7 @@ def load_squeezenet():
 def classify(img):
     """
     Classify the image using SqueezeNet v1.1 convNet.
-    The convNet is trained to output 6 classes, but this is reduced to 3 classes.
+    The convNet is trained to output 4 classes
     Images are classified in 3 categories: bottles, cans and cups.
 
     :param img: Input image with shape (1, 227, 227, 3)
@@ -83,7 +84,10 @@ def preprocess_image(img):
     
     # Rotate image 90 degrees
     image = cv2.warpAffine(resized_image, rotation_matrix, (input_width, input_height))
-    
+    aux = copy.copy(image)
+    image[:, :, 0] = aux[:, :, 2]
+    image[:, :, 2] = aux[:, :, 0]
+
     image = np.expand_dims(image, axis=0)
     return image
 
@@ -99,7 +103,7 @@ def handle_service(request):
     img = CvBridge().imgmsg_to_cv2(request.msg)
     img = preprocess_image(img)
     result = classify(img)
-    rospy.loginfo('Classified as %s' % reduced_classes[result])
+    rospy.loginfo('Classified as %s' % classes[result])
     return result
 
 

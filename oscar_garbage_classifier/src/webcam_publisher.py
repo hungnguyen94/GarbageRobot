@@ -12,7 +12,7 @@ def main(args):
     pub = rospy.Publisher('image_topic', Image, queue_size=1)
     rospy.init_node('webcam', anonymous=True)
     rate = rospy.Rate(5)
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
     # 432x240
     cam.set(3, 640)
     cam.set(4, 360)
