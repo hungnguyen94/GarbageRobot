@@ -9,9 +9,9 @@ import cv2
 import numpy as np
 import rospy
 import copy
+import os
 
-
-weights = '../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
+weights = os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
 classes = ['bottles', 'cans', 'cups', 'other']
 
 sq_graph = tf.Graph()
