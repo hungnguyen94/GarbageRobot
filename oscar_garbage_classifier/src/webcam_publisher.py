@@ -8,14 +8,15 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from time import sleep
 
+
 def main(args):
     pub = rospy.Publisher('image_topic', Image, queue_size=1)
     rospy.init_node('webcam', anonymous=True)
     rate = rospy.Rate(5)
     cam = cv2.VideoCapture(1)
-    # 432x240
-    cam.set(3, 1280)
-    cam.set(4, 721)
+    # 640x360
+    cam.set(3, 640)
+    cam.set(4, 360)
     cv_bridge = CvBridge()
     while not rospy.is_shutdown():
         ret, frame = cam.read()

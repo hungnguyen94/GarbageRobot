@@ -50,10 +50,10 @@ def classify(img):
     """
     Classify the image using SqueezeNet v1.1 convNet.
     The convNet is trained to output 4 classes
-    Images are classified in 3 categories: bottles, cans and cups.
+    Images are classified in 4 categories: bottles, cans, cups, other.
 
     :param img: Input image with shape (1, 227, 227, 3)
-    :return: Integer representing 1 of 3 classes.
+    :return: Integer representing 1 of 4 classes.
     """
     with sq_graph.as_default():
         if squeezenet is None:
@@ -69,7 +69,7 @@ def classify(img):
 def preprocess_image(img):
     """
     Preprocess the image before passing it to SqueezeNet.
-    Resize to (227, 227, 3) and maintain aspect ratio by adding black borders.
+    Resize to (300, 300, 3) and maintain aspect ratio by adding black borders.
     Add an extra dimension because SqueezeNet expects an array of images as input.
 
     :param img: RGB image with shape (height, width, 3)
@@ -91,8 +91,8 @@ def preprocess_image(img):
 
     # Resize image to 300, 300 as Squeezenet only accepts this format.
     resized_image = cv2.resize(cropped_img, (input_width, input_height)).astype('float32')
-    resized_image /= 255
-    
+    resized_image /= 255.
+
     # Rotate image 90 degrees
     image = cv2.warpAffine(resized_image, rotation_matrix, (input_width, input_height))
     aux = copy.copy(image)
@@ -114,10 +114,9 @@ def handle_service(request):
     img = CvBridge().imgmsg_to_cv2(request.msg)
     img = preprocess_image(img)
     result = classify(img)
-    category = categories[result]
+    category = class_to_category_index[result]
     rospy.loginfo('Classified as %s' % classes[result])
     rospy.loginfo('Category is %s' % categories[category])
-    publish_result(result)
     return category
 
 
