@@ -6,9 +6,10 @@ from oscar_garbage_classifier.srv import Sort
 from time import sleep
 
 GPIO_available = False
-cups_pin = 33
-pmd_pin = 31
-other_pin = 29
+
+cups_pin = rospy.get_param('cups_pin', 33)
+pmd_pin = rospy.get_param('pmd_pin', 31)
+other_pin = rospy.get_param('other_pin', 29)
 
 
 def init_GPIO():
@@ -22,7 +23,8 @@ def init_GPIO():
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT)
         GPIO_available = True
-    except RuntimeError:
+    except (RuntimeError, ImportError):
+        rospy.loginfo("GPIO is not available. ")
         GPIO_available = False
 
 
@@ -62,7 +64,7 @@ def switch_pin(pin):
             rospy.logerr("An error has occurred when setting GPIO pins: \n%s" % (str(e)))
             return False
     else:
-        rospy.logdebug("Switching pin %s" % pin)
+        rospy.loginfo("Switching pin %s" % pin)
         return True
 
 

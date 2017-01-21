@@ -13,18 +13,21 @@ import roshelper
 import copy
 import os
 
-weights = os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
-classes = ['bottles', 'cans', 'cups', 'other']
+weights = rospy.get_param("squeezenet_classifier_weightsfile",
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5')
+classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'other'])
+print(classes)
+
+input_width = rospy.get_param('classifier_image_width', 300)
+input_height = rospy.get_param('classifier_image_height', 300)
 
 sq_graph = tf.Graph()
 sq_sess = tf.Session(graph=sq_graph)
 K.set_session(sq_sess)
 
 squeezenet = None
-input_width = 300
-input_height = 300
-
 rotation_matrix = cv2.getRotationMatrix2D((input_width/2, input_height/2), 90, 1)
+
 
 def load_squeezenet():
     """

@@ -1,0 +1,16 @@
+<launch>
+    <node name="classifier" pkg="oscar_garbage_classifier"
+          type="classify_service.py" respawn="true" clear_params="true">
+        <rosparam param="classifier_classes">['bottles', 'cans', 'cups', 'other2']</rosparam>
+        <!--<param name="squeezenet_classifier_weightsfile" type="str" value="squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5"/>-->
+        <param name="classifier_image_width" type="int" value="300"/>
+        <param name="classifier_image_height" type="int" value="300"/>
+    </node>
+
+    <param name="cups_pin" type="int" value="33"/>
+    <param name="pmd_pin" type="int" value="31"/>
+    <param name="other_pin" type="int" value="29"/>
+    <node name="invoke_sorter" pkg="oscar_garbage_classifier"
+          type="invoke_sorter_service.py" respawn="true" clear_params="true">
+    </node>
+</launch>
