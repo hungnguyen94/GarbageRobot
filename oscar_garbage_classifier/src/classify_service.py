@@ -9,14 +9,17 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import rospy
-import roshelper
 import copy
 import os
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
                           os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5')
 classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'other'])
-print(classes)
+categories = ['cups', 'pmd', 'other']
+class_to_category_index = {0: 1, # Bottles to pmd
+                           1: 1, # cans to pmd
+                           2: 0, # cups to cups
+                           3: 2} # other to other
 
 input_width = rospy.get_param('classifier_image_width', 300)
 input_height = rospy.get_param('classifier_image_height', 300)
@@ -105,14 +108,17 @@ def handle_service(request):
     Handle the request to classify an image. Converts the requested image to a cv2 image.
     Preprocesses the image and runs it through the model.
     :param request: ClassifyImage request.
-    :return: An integer representing one of the three classes.
+    :return: An integer representing one of the classes.
     """
 
     img = CvBridge().imgmsg_to_cv2(request.msg)
     img = preprocess_image(img)
     result = classify(img)
+    category = categories[result]
     rospy.loginfo('Classified as %s' % classes[result])
-    return result
+    rospy.loginfo('Category is %s' % categories[category])
+    publish_result(result)
+    return category
 
 
 def image_classify_service():
