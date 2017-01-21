@@ -9,6 +9,7 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import rospy
+import roshelper
 import copy
 import os
 
@@ -54,7 +55,7 @@ def classify(img):
         result = squeezenet.predict(img)[0]
 
     top = result.argsort()[-1::][0]
-    rospy.loginfo('Top result of 6 classes: %s with confidence %s' % (classes[top], result[top]))
+    rospy.loginfo('Top result of %d classes: %s with confidence %s' % (len(classes), classes[top], result[top]))
 
     return top
 
@@ -119,5 +120,7 @@ def image_classify_service():
 
 
 if __name__ == '__main__':
+    if squeezenet is None:
+        load_squeezenet()
     image_classify_service()
 

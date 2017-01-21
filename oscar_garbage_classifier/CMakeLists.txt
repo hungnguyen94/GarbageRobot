@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   ClassifyImage.srv
+  Sort.srv
 )
 
 ## Generate actions in the 'action' folder
