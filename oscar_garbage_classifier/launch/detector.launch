@@ -1,0 +1,6 @@
+<launch>
+    <node name="webcam_publisher" pkg="oscar_garbage_classifier"
+          type="webcam_publisher.py" respawn="true"/>
+    <node name="classifier_subscriber" pkg="oscar_garbage_classifier"
+          type="classifier_subscriber.py" respawn="true"/>
+</launch>
