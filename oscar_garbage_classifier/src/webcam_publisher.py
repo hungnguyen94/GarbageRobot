@@ -13,10 +13,10 @@ def main(args):
     pub = rospy.Publisher('image_topic', Image, queue_size=1)
     rospy.init_node('webcam', anonymous=True)
     rate = rospy.Rate(5)
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
     # 640x360
-    cam.set(3, 640)
-    cam.set(4, 360)
+    cam.set(3, 1280)
+    cam.set(4, 720)
     cv_bridge = CvBridge()
     while not rospy.is_shutdown():
         ret, frame = cam.read()

@@ -16,7 +16,7 @@ import time
 
 class ClassifierSubscriber:
     def __init__(self):
-        self.detector_weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.37-loss_0.10772-acc_0.99000.h5'
+        self.detector_weights_file = '/home/rpi/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
@@ -83,9 +83,9 @@ class ClassifierSubscriber:
         results = res[0]
 
         # If sorter is occupied, run the classifier
-        if results[0] > 0.50:
-            if time.time() > self.invoke_timeout:
-                self.invoke_timeout = time.time() + 30
+        if results[0] > 0.15:
+            if time.time() >= self.invoke_timeout:
+                self.invoke_timeout = time.time() + 15
                 # Img is rotated and resized in the service.
                 rospy.wait_for_service('image_classify')
                 image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
@@ -95,10 +95,11 @@ class ClassifierSubscriber:
                 invoke_sorter = rospy.ServiceProxy('invoke_sorter', Sort)
                 sort_result = invoke_sorter(class_result.prediction)
                 print(sort_result)
-                self.invoke_timeout = time.time() + 10
+                self.invoke_timeout = time.time() + 7
             else:
                 print("Occupied but busy")
-                pass
+	else: 
+ 	    print("Empty")
 
         for i in xrange(len(results)):
             clazz = self.detector_classes[i]
@@ -111,7 +112,7 @@ if __name__ == '__main__':
 
     print("")
     img_sub = ClassifierSubscriber()
-    rospy.init_node("classifier_subscriber", anonymous=True)
+    rospy.init_node("classifier_subscriber", anonymous=False)
 
     try:
         rospy.spin()

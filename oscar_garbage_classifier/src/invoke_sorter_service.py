@@ -5,11 +5,15 @@ import rospy
 from oscar_garbage_classifier.srv import Sort
 from time import sleep
 
-GPIO_available = False
 
-cups_pin = rospy.get_param('cups_pin', 33)
-pmd_pin = rospy.get_param('pmd_pin', 31)
-other_pin = rospy.get_param('other_pin', 29)
+cups_pin = rospy.get_param('cups_pin', 11)
+pmd_pin = rospy.get_param('pmd_pin', 15)
+other_pin = rospy.get_param('other_pin', 13)
+
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT)
+GPIO_available = True
 
 
 def init_GPIO():
@@ -73,7 +77,7 @@ def sorter_service():
     Register sorter service.
     """
     rospy.init_node('sorter_service')
-    init_GPIO()
+    #init_GPIO()
     s = rospy.Service('invoke_sorter', Sort, handle_service)
     rospy.loginfo('Sorter service ready.')
     rospy.spin()
