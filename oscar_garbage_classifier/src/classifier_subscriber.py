@@ -14,13 +14,11 @@ import copy
 
 class ClassifierSubscriber:
     def __init__(self):
-        self.weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
-        self.detector_weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.50-loss_0.00011-acc_1.00000.h5'
+        self.detector_weights_file = '../models/squeezenet_detector_weights_100x100.50-loss_0.00011-acc_1.00000.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
-        # self.classes = ['bottles', 'cans', 'cups', 'other']
-        self.detector_classes = ['empty', 'occupied']
+        self.detector_classes = ['occupied', 'empty']
 
         self.detect_graph = tf.Graph()
         self.detect_sess = tf.Session(graph=self.detect_graph)
@@ -76,19 +74,17 @@ class ClassifierSubscriber:
 
         results = res[0]
 
-        if results[1] > 0.50:
+        if results[0] > 0.50:
             # Img is rotated and resized in the service.
             class_result = classify_client.classify_image(img)
             print(class_result)
-            # classify_client.invoke_sorter(classify_client.classes[class_result])
-            # print("hoi")
+            print("invoke sorter")
 
         for i in xrange(len(results)):
             clazz = self.detector_classes[i]
             text = '%.9f: %s' % (results[i], clazz)
             print(text)
         print("")
-
 
 
 if __name__ == '__main__':

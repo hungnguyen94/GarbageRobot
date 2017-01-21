@@ -14,11 +14,11 @@ import random
 
 initial_epoch = 0
 nb_epoch = 100
-batch_size = 50
-samples_per_epoch = 700
-nb_val_samples = 80
+batch_size = 20
+samples_per_epoch = 100
+nb_val_samples = 50
 
-input_shape = (100, 100, 3)
+input_shape = (150, 150, 3)
 width = input_shape[0]
 height = input_shape[1]
 channels = input_shape[2]
@@ -26,18 +26,18 @@ channels = input_shape[2]
 training_dir = '../images/training_detector'
 val_dir = '../images/validation_detector'
 save_weights_file = '../models/squeezenet_detector_v1.1_weights_%s_epochs_%sx%s.h5' % (nb_epoch, width, height)
-start_weights_file = '' #save_weights_file
+start_weights_file = '' #'/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_v1.1_weights_50_epochs_100x100.h5' #save_weights_file
 weights_target = "../models/squeezenet_detector_weights_%sx%s.{epoch:02d}-loss_{val_loss:.5f}-acc_{val_acc:.5f}.h5" % (width, height)
 
-classes = ['occupied', 'empty']
+classes = ['empty', 'occupied']
 nb_classes = len(classes)
 
 train_datagen = ImageDataGenerator(
         rescale=1./255,
-        shear_range=0.20,
-        width_shift_range=0.15,
-        rotation_range=20.,
-        height_shift_range=0.15,
+        shear_range=0.10,
+        width_shift_range=0.10,
+        rotation_range=10.,
+        height_shift_range=0.10,
         fill_mode='constant')
 
 test_datagen = ImageDataGenerator(
@@ -84,15 +84,15 @@ print('Loading model..')
 model = SqueezeNet(nb_classes, width, height, channels)
 adam = Adam(lr=0.005)
 rmsprop = RMSprop(lr=0.005)
-model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=[top_1_categorical_accuracy, 'accuracy', 'precision', 'recall', 'categorical_crossentropy', 'binary_crossentropy'])
+model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=[top_1_categorical_accuracy, 'accuracy', 'precision', 'recall', 'categorical_crossentropy', 'binary_crossentropy'])
 if os.path.isfile(start_weights_file):
-        print('Loading weights: %s' % start_weights_file)
-        model.load_weights(start_weights_file, by_name=True)
+    print('Loading weights: %s' % start_weights_file)
+    model.load_weights(start_weights_file, by_name=True)
 
 print('Fitting model')
-model.fit_generator(train_generator3(),
+model.fit_generator(train_generator,
                     samples_per_epoch=samples_per_epoch,
-                    validation_data=val_generator3(),
+                    validation_data=val_generator,
                     callbacks=[checkpoint, tensorboard],
                     nb_val_samples=nb_val_samples,
                     nb_epoch=nb_epoch,
