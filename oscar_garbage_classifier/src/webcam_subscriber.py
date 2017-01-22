@@ -17,9 +17,10 @@ class image_subscriber:
   def callback(self, img): 
     try:
       cv_image = self.cv_bridge.imgmsg_to_cv2(img)
-      b, g, r = cv2.split(cv_image)
-      frame = cv2.merge([r, g, b])
-      frame = cv2.fastNlMeansDenoisingColored(frame, h=5, hColor=7, templateWindowSize=5, searchWindowSize=7)
+      # b, g, r = cv2.split(cv_image)
+      # frame = cv2.merge([r, g, b])
+      # frame = cv2.fastNlMeansDenoisingColored(frame, h=5, hColor=7, templateWindowSize=5, searchWindowSize=7)
+      frame = cv_image
 
       cv2.imshow("Wall-A", frame)
       cv2.waitKey(1)

@@ -15,8 +15,8 @@ def main(args):
     rate = rospy.Rate(2)
     cam = cv2.VideoCapture(1)
     # 640x360
-    cam.set(3, 640)
-    cam.set(4, 360)
+    cam.set(3, 1280)
+    cam.set(4, 960)
     cv_bridge = CvBridge()
     while not rospy.is_shutdown():
         ret, frame = cam.read()
