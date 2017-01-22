@@ -52,11 +52,6 @@ class KerasImageSubscriber:
         # Crop the square containing the full image.
         cropped_frame = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
-        # ts = int(time.time())
-        # cv2.imwrite('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_webcam_cv2_output/bottles/bottle-%s.jpg' % (ts), cropped_frame)
-        # print("write img")
-
-        # print "Frame: "
         # print type(frame)
         # print frame
 

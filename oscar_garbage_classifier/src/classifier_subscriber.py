@@ -16,7 +16,7 @@ import time
 
 class ClassifierSubscriber:
     def __init__(self):
-        self.detector_weights_file = '/home/rpi/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.h5'
+        self.detector_weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.50-loss_0.00011-acc_1.00000.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
@@ -38,10 +38,14 @@ class ClassifierSubscriber:
     def process_image(self, imgmsg):
         """
         Function to process the image in the correct format for the classifier.
-        :param img: Img message
+        :param imgmsg: Img message
         :return: Image
         """
         frame = self.cv_bridge.imgmsg_to_cv2(imgmsg) #, desired_encoding='8UC3')
+        # Cv2 uses bgr by default. Convert bgr to rgb.
+        b, g, r = cv2.split(frame)
+        frame = cv2.merge([r, g, b])
+
         height = frame.shape[0]
         width = frame.shape[1]
         offset = int(round(max(height, width) / 2.0))
@@ -55,7 +59,10 @@ class ClassifierSubscriber:
         # Crop the square containing the full image.
         cropped_frame = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
         resized_frame = cv2.resize(cropped_frame, (self.detect_input_shape[0], self.detect_input_shape[1]))
-        fr = resized_frame.astype('float32')
+
+        # Denoise image.
+        fr = resized_frame
+        fr = cv2.fastNlMeansDenoisingColored(fr, h=5, hColor=7, templateWindowSize=7, searchWindowSize=21)
         image = fr.astype('float32')
         image /= 255.
 
@@ -63,9 +70,9 @@ class ClassifierSubscriber:
         image = cv2.warpAffine(image, self.rotation_matrix, (self.detect_input_shape[0], self.detect_input_shape[1]))
 
         # Change BGR to RGB
-        aux = copy.copy(image)
-        image[:, :, 0] = aux[:, :, 2]
-        image[:, :, 2] = aux[:, :, 0]
+        # aux = copy.copy(image)
+        # image[:, :, 0] = aux[:, :, 2]
+        # image[:, :, 2] = aux[:, :, 0]
 
         image = np.expand_dims(image, axis=0)
         return image
@@ -98,8 +105,8 @@ class ClassifierSubscriber:
                 self.invoke_timeout = time.time() + 7
             else:
                 print("Occupied but busy")
-	else: 
- 	    print("Empty")
+        else:
+            print("Empty")
 
         for i in xrange(len(results)):
             clazz = self.detector_classes[i]

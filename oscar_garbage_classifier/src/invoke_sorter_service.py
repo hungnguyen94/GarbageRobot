@@ -10,10 +10,8 @@ cups_pin = rospy.get_param('cups_pin', 11)
 pmd_pin = rospy.get_param('pmd_pin', 15)
 other_pin = rospy.get_param('other_pin', 13)
 
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup([cups_pin, pmd_pin, other_pin], GPIO.OUT)
-GPIO_available = True
+GPIO_available = False
+GPIO = None
 
 
 def init_GPIO():
