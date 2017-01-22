@@ -39,7 +39,7 @@ train_datagen = ImageDataGenerator(
         width_shift_range=0.05,
         rotation_range=1.,
         height_shift_range=0.05,
-        horizontal_flip=True,
+        horizontal_flip=False,
         vertical_flip=True,
         fill_mode='constant')
 

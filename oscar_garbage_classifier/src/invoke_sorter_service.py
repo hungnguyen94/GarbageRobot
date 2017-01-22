@@ -22,6 +22,7 @@ def init_GPIO():
     Set GPIO mode to BOARD, and set pins to OUTPUT.
     """
     global GPIO_available
+    global GPIO
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BOARD)
