@@ -7,16 +7,19 @@ import cv2
 import tensorflow as tf
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+from std_msgs.msg import Empty
 from squeezenetv1_1 import SqueezeNet
 import keras.backend as K
 from oscar_garbage_classifier.srv import ClassifyImage, Sort
 import copy
 import time
-
+import rospkg
 
 class ClassifierSubscriber:
     def __init__(self):
-        self.detector_weights_file = '/home/rpi/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.h5'
+     	rp = rospkg.RosPack()
+	path = rp.get_path('oscar_garbage_classifier')
+        self.detector_weights_file = path + '/models/squeezenet_detector_weights_100x100.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
@@ -34,6 +37,7 @@ class ClassifierSubscriber:
 
         self.sub = rospy.Subscriber("image_topic", Image, self.detect)
         self.invoke_timeout = time.time()
+        self.pub = rospy.Publisher('oscar_eating', Empty, queue_size=10)
 
     def process_image(self, imgmsg):
         """
@@ -85,14 +89,15 @@ class ClassifierSubscriber:
         # If sorter is occupied, run the classifier
         if results[0] > 0.15:
             if time.time() >= self.invoke_timeout:
+		self.pub.publish(Empty())
                 self.invoke_timeout = time.time() + 15
                 # Img is rotated and resized in the service.
                 rospy.wait_for_service('image_classify')
                 image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
                 class_result = image_classify(imgmsg)
                 print(class_result)
-                rospy.wait_for_service('invoke_sorter')
-                invoke_sorter = rospy.ServiceProxy('invoke_sorter', Sort)
+                rospy.wait_for_service('sort_srv')
+                invoke_sorter = rospy.ServiceProxy('sort_srv', Sort)
                 sort_result = invoke_sorter(class_result.prediction)
                 print(sort_result)
                 self.invoke_timeout = time.time() + 7
