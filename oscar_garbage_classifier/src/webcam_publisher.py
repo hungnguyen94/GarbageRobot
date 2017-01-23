@@ -12,7 +12,7 @@ from time import sleep
 def main(args):
     pub = rospy.Publisher('image_topic', Image, queue_size=1)
     rospy.init_node('webcam', anonymous=True)
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(10)
     cam = cv2.VideoCapture(0)
     # 640x360
     cam.set(3, 1280)

@@ -10,7 +10,5 @@
     <param name="cups_pin" type="int" value="15"/>
     <param name="pmd_pin" type="int" value="11"/>
     <param name="other_pin" type="int" value="13"/>
-    <node name="invoke_sorter" pkg="oscar_garbage_classifier" output="screen"
-          type="invoke_sorter_service.py" respawn="true" clear_params="true">
-    </node>
+    <node pkg="rosserial_python" name="gpio_arduino" type="serial_node.py" args="/dev/ttyACM0" output="screen" />
 </launch>

@@ -14,12 +14,14 @@ from oscar_garbage_classifier.srv import ClassifyImage, Sort
 import copy
 import time
 import rospkg
+import pygame
 
 class ClassifierSubscriber:
     def __init__(self):
+        pygame.mixer.init()
      	rp = rospkg.RosPack()
-	path = rp.get_path('oscar_garbage_classifier')
-        self.detector_weights_file = path + '/models/squeezenet_detector_weights_100x100.h5'
+	self.path = rp.get_path('oscar_garbage_classifier')
+        self.detector_weights_file = self.path + '/models/squeezenet_detector_weights_100x100.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
@@ -34,7 +36,8 @@ class ClassifierSubscriber:
         with self.detect_graph.as_default():
             self.model = SqueezeNet(2, self.detect_input_shape[0], self.detect_input_shape[1], self.detect_input_shape[2])
             self.model.load_weights(self.detector_weights_file, by_name=True)
-
+	
+	print "Weights loaded"
         self.sub = rospy.Subscriber("image_topic", Image, self.detect)
         self.invoke_timeout = time.time()
         self.pub = rospy.Publisher('oscar_eating', Empty, queue_size=10)
@@ -89,21 +92,27 @@ class ClassifierSubscriber:
         # If sorter is occupied, run the classifier
         if results[1] > 0.15:
             if time.time() >= self.invoke_timeout:
-		self.pub.publish(Empty())
+	        self.pub.publish(Empty())
+                pygame.mixer.music.load(self.path+"/src/detect.mp3")
+		pygame.mixer.music.play()
                 self.invoke_timeout = time.time() + 15
                 # Img is rotated and resized in the service.
+		print "Waiting for image classify service"
                 rospy.wait_for_service('image_classify')
                 image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
                 class_result = image_classify(imgmsg)
                 print(class_result)
                 rospy.wait_for_service('sort_srv')
+   		print "Waiting for sorting service"
                 invoke_sorter = rospy.ServiceProxy('sort_srv', Sort)
                 sort_result = invoke_sorter(class_result.prediction)
                 print(sort_result)
+                pygame.mixer.music.load(self.path+"/src/classified.mp3")
+		pygame.mixer.music.play()
                 self.invoke_timeout = time.time() + 7
             else:
                 print("Occupied but busy")
-	else: 
+	else:
  	    print("Empty")
 
         for i in xrange(len(results)):

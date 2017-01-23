@@ -15,7 +15,7 @@ import pyttsx
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
                           os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.h5')
-classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'other'])
+classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
 categories = ['cups', 'pmd', 'other']
 class_to_category_index = {0: 1, # Bottles to pmd
                            1: 1, # cans to pmd
@@ -95,7 +95,8 @@ def preprocess_image(img):
 
     # Resize image to 300, 300 as Squeezenet only accepts this format.
     resized_image = cv2.resize(cropped_img, (input_width, input_height))
-    image = cv2.fastNlMeansDenoisingColored(resized_image, h=3, hColor=3, templateWindowSize=3, searchWindowSize=9)
+    #image = cv2.fastNlMeansDenoisingColored(resized_image, h=3, hColor=3, templateWindowSize=3, searchWindowSize=9)
+    image = resized_image
     image = image.astype('float32')
     image /= 255.
 
@@ -127,9 +128,9 @@ def handle_service(request):
               3: "Two girls, wrong cup",
               4: "What the hell is that"}
 
-    tts_engine = pyttsx.init()
-    tts_engine.say(speech[result])
-    tts_engine.runAndWait()
+    #tts_engine = pyttsx.init()
+    #tts_engine.say(speech[result])
+    #tts_engine.runAndWait()
 
     rospy.loginfo('Classified as %s' % classes[result])
     rospy.loginfo('Category is %s' % categories[category])
