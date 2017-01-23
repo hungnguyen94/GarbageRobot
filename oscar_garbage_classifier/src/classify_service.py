@@ -11,15 +11,17 @@ import numpy as np
 import rospy
 import copy
 import os
+import pyttsx
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
-                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.h5')
-classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'other'])
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.088-loss_0.09553-acc_0.98025.h5')
+classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
 categories = ['cups', 'pmd', 'other']
 class_to_category_index = {0: 1, # Bottles to pmd
                            1: 1, # cans to pmd
                            2: 0, # cups to cups
-                           3: 2} # other to other
+                           3: 2, # cups_wrong to other
+                           4: 2} # other to other
 
 input_width = rospy.get_param('classifier_image_width', 300)
 input_height = rospy.get_param('classifier_image_height', 300)
@@ -75,6 +77,8 @@ def preprocess_image(img):
     :param img: RGB image with shape (height, width, 3)
     :return: Numpy array containing image with shape (1, 227, 227, 3)
     """
+    b, g, r = cv2.split(img)
+    img = cv2.merge([r, g, b])
 
     height = img.shape[0]
     width = img.shape[1]
@@ -90,14 +94,16 @@ def preprocess_image(img):
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
     # Resize image to 300, 300 as Squeezenet only accepts this format.
-    resized_image = cv2.resize(cropped_img, (input_width, input_height)).astype('float32')
-    resized_image /= 255.
+    resized_image = cv2.resize(cropped_img, (input_width, input_height))
+    image = cv2.fastNlMeansDenoisingColored(resized_image, h=3, hColor=3, templateWindowSize=3, searchWindowSize=9)
+    image = image.astype('float32')
+    image /= 255.
 
     # Rotate image 90 degrees
-    image = cv2.warpAffine(resized_image, rotation_matrix, (input_width, input_height))
-    aux = copy.copy(image)
-    image[:, :, 0] = aux[:, :, 2]
-    image[:, :, 2] = aux[:, :, 0]
+    image = cv2.warpAffine(image, rotation_matrix, (input_width, input_height))
+    # aux = copy.copy(image)
+    # image[:, :, 0] = aux[:, :, 2]
+    # image[:, :, 2] = aux[:, :, 0]
 
     image = np.expand_dims(image, axis=0)
     return image
@@ -115,6 +121,16 @@ def handle_service(request):
     img = preprocess_image(img)
     result = classify(img)
     category = class_to_category_index[result]
+    speech = {0: "I like bottles",
+              1: "Oh yes, I CAN",
+              2: "Two girls, one cup",
+              3: "Two girls, wrong cup",
+              4: "What the hell is that"}
+
+    tts_engine = pyttsx.init()
+    tts_engine.say(speech[result])
+    tts_engine.runAndWait()
+
     rospy.loginfo('Classified as %s' % classes[result])
     rospy.loginfo('Category is %s' % categories[category])
     return category
