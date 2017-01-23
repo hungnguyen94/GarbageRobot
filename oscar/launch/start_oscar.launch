@@ -1,117 +1,140 @@
 <launch>
-  <arg name="navigation" default="true" />
-  <arg name="classification" default="true" />
-  <arg name="kinect_connected" default="true"/>
-  <param name="use_sim_time" value="false"></param >
-
-  <!-- ===================================================================== -->
-  <!-- ======================= Settings ==================================== -->
-  <!-- ===================================================================== -->
-
-  <!-- Location of the map to navigate in -->
-  <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" />
-  <!-- The resolution of the map defined in $(arg map_location) -->
-  <arg name="map_resolution" value="0.05"/>
-  <!-- The topic to publish the map on -->
-  <arg name="map_topic"  value="/map"/>
-  <!-- The topic to publish the map metadata on -->
-  <arg name="map_metadata_topic"  value="/map_metadata"/>
-  <!-- The frame to use for the map -->
-  <arg name="map_frame" value="/map" />
-  <!-- The topic the scan data (converted from the kinect depthimages) will be published on -->
-  <arg name="scan_topic" value="/kinect_scan"/>
-  <!-- The frame to use for the scan data -->
-  <arg name="scan_frame" value="/kinect_link"/>
-  <!-- The topic the kinect depth camera info messages will be published on -->
-  <arg name="camera_depth_info_topic" value="/kinect/depth/camera_info"/>
-  <!-- The topic the kinect depth images will be published on -->
-  <arg name="camera_depth_image_topic" value="/kinect/depth/image_raw"/>
-  <!-- The frame to use for the odomotry of the robot -->
-  <arg name="odom_frame" value="/odom"/>
-  <arg name="odom_topic" value="/odom"/>
-
-  <!-- Topic to send the movement commands for the base over -->
-  <arg name="cmd_vel_topic" value="/cmd_vel"/>
-
-  <!-- ===================================================================== -->
-  <!-- ======================= Sensors and general stuff==================== -->
-  <!-- ===================================================================== -->
+    <arg name="navigation_auto" />
+    <arg name="navigation_goal_gen" />
+    <arg name="classification" />
+    <arg name="kinect_connected" />
+    <arg name="sonars_connected" />
+    <arg name="base_controller" />
+    <arg name="simulation" />
+    <arg name="map_creation" />
+    <arg name="state_controller" />
 
 
+    <param name="use_sim_time" value="false"></param>
+
+    <!-- ===================================================================== -->
+    <!-- ======================= Settings ==================================== -->
+    <!-- ===================================================================== -->
+
+    <!-- TOPICS -->
+    <arg value="/oscar/kinect/depth/image_raw" name="kinect_depth_image_topic" doc="The topic the kinect depth images will be published on" />
+    <arg value="/oscar/kinect/depth/camera_info" name="kinect_depth_info_topic" doc="The topic the kinect depth camera info messages will be published on" />
+    <arg value="/cmd_vel" name="cmd_vel_topic" doc="Topic to send the movement commands for the base over" />
+    <arg value="/map" name="map_topic" doc="The topic to publish the map on" />
+    <arg value="/map_metadata" name="map_metadata_topic" doc="The topic to publish the map metadata on" />
+    <arg value="/odom" name="odom_topic" doc="The odometry frame" />
+    <arg value="/kinect_scan" name="scan_topic" doc="The topic the scan data (converted from the kinect depthimages) will be published on" />
+    <!-- FRAMES -->
+    <arg value="/odom" name="odom_frame" doc="The frame to use for the odomotry of the robot" />
+    <arg value="/map" name="map_frame" doc="The frame to use for the map" />
+    <arg value="/kinect_depth_frame" name="kinect_depth_frame" doc="The frame to use for the scan data" />
+    <arg value="/kinect_rgb_frame" name="kinect_rgb_frame" doc="The frame to use for the scan data" />
+    <arg value="/base_link" name="base_frame" doc="The frame of the base" />
+    <!-- MISC -->
+    <arg name="map_location" value="$(find oscar_navigation)/map/map3.pgm" doc="Location of the map to navigate in" />
+    <arg name="map_resolution" value="0.05" doc="The resolution of the map defined in $(arg map_location)" />
+
+    <!-- ===================================================================== -->
+    <!-- ======================= Sensors and general stuff==================== -->
+    <!-- ===================================================================== -->
 
     <!-- Get sonar data from the arduino and convert it to laser scan -->
     <!-- TODO add the rosserial node to get sonar data-->
     <!-- TODO add the node to convert sonar data to laser scan -->
-    <!-- TODO add node publishing the sonar transforms -->
+    <node if="$(arg sonars_connected)" name="sonar_frame_broadcaster" pkg="oscar" type="sonarframe_broadcaster"  output="screen">
+      <param name="sonar_frame_rv" type="str" value="sonar_rv"/>
+      <param name="sonar_frame_lv" type="str" value="sonar_lv"/>
+      <param name="sonar_frame_rm" type="str" value="sonar_rm"/>
+      <param name="sonar_frame_lm" type="str" value="sonar_lm"/>
+      <param name="sonar_frame_rav" type="str" value="sonar_rav"/>
+      <param name="sonar_frame_lav" type="str" value="sonar_lav"/>
+      <param name="sonar_frame_laa" type="str" value="sonar_laa"/>
+      <param name="sonar_frame_raa" type="str" value="sonar_raa"/>
+    </node>
 
+	<remap from="/kinect/depth/image" to="$(arg kinect_depth_image_topic)"/>
+	<remap from="/kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
     <!-- Kinect -->
-    <include if="$(arg kinect_connected)"  file="$(find oscar)/launch/sensors/kinect.launch" >
-      <arg name="camera_name" value="camera" />
-      <arg name="depth_registration" value="false" />
-      <arg name="rgb_frame_id" value="/kinect_rgb_optical_frame"/>
-      <arg name="depth_frame_id" value="/kinect_depth_optical_frame"/>
-      <arg name="publish_tf" value="true"/>
-      <arg name="rgb_processing" value="false"/>
-      <arg name="depth_processing" value="false"/>
-      <arg name="depth_registered_processing" value="false"/>
+    <include if="$(arg kinect_connected)" file="$(find freenect_launch)/launch/freenect.launch">
+        <arg name="depth_registration" value="false" />
+        <arg name="camera" value="kinect" />
+        <arg name="rgb_frame_id" value="$(arg kinect_rgb_frame)" />
+        <arg name="depth_frame_id" value="$(arg kinect_depth_frame)" />
+        <!-- May need to be changed -->
+        <arg name="publish_tf" value="true" />
+        <!-- May need to be changed -->
+        <arg name="rgb_processing" value="false" />
+        <arg name="depth_processing" value="true" />
+        <!-- May need to be changed -->
+        <arg name="depth_registered_processing" value="true" />
+    </include>
+<!--	<remap from="kinect/depth/image_raw" to="$(arg kinect_depth_image_topic)"/>
+	<remap from="kinect/depth/camera_info" to="$(arg kinect_depth_info_topic)"/>
+    -->
+
+    <!-- TODO add navigation auto check, needs to start then as well -->
+    <include if="$(arg map_creation)" file="$(find oscar_navigation)/launch/includes/depthimage_to_laserscan.launch">
+        <arg name="scan_topic" value="$(arg scan_topic)" />
+        <arg name="output_frame" value="$(arg kinect_depth_frame)" />
+        <arg name="camera_depth_info_topic" value="$(arg kinect_depth_info_topic)" />
+        <arg name="camera_depth_image_topic" value="$(arg kinect_depth_image_topic)" />
     </include>
 
-    <!-- Fill level sensors -->
-    <!-- TODO -->
 
-    <!-- Mouth sensor -->
-    <!-- TODO -->
-
-    <!-- Converting twist messages to motor commands -->
-    <node name="base_controller" pkg="dpr4_base" type="velocity_listener.cpp" output="screen" >
+   <!-- Converting twist messages to motor commands -->
+    <node if="$(arg base_controller)" name="base_controller" pkg="dpr4_base" type="velocity_listener" output="screen" >
       <remap from="/cmd_vel" to="$(arg cmd_vel_topic)"></remap>
     </node>
+
+    <node if="$(arg state_controller)" name="state_controller" pkg="oscar" type="state_controller.py" output="screen" />
 
 
   <!-- ===================================================================== -->
   <!-- ======================= Navigation  ================================= -->
   <!-- ===================================================================== -->
 
-  <group if="$(arg navigation)">
-      <!-- Publish map data -->
-    <include file="$(find oscar_navigation)/launch/map_server.launch" >
-      <arg name="map_location" value="$(arg map_location)"/>
-      <arg name="map_resolution" value="$(arg map_resolution)"/>
-      <arg name="map_topic"  value="$(arg map_topic)"/>
-      <arg name="map_metadata_topic"  value="$(arg map_metadata_topic)"/>
-      <arg name="map_frame" value="$(arg map_frame)" />
-    </include>
+    <group if="$(arg navigation_auto)">
+        <include file="$(find oscar_navigation)/launch/map_server.launch">
+            <!-- TOPICS -->
+            <arg name="map_topic" value="$(arg map_topic)" />
+            <arg name="map_metadata_topic" value="$(arg map_metadata_topic)" />
+            <!-- FRAMES -->
+            <arg name="map_frame" value="$(arg map_frame)" />
+            <!-- MISC -->
+            <arg name="map_location" value="$(arg map_location)" />
+            <arg name="map_resolution" value="$(arg map_resolution)" />
+        </include>
 
-    <!-- Localization -->
-    <include file="$(find oscar_navigation)/launch/localization/amcl.launch" >
-      <arg name="scan_topic" value="$(arg scan_topic)"/>
-      <arg name="scan_frame" value="$(arg scan_frame)"/>
-      <arg name="camera_depth_info_topic" value="$(arg camera_depth_info_topic)"/>
-      <arg name="camera_depth_image_topic" value="$(arg camera_depth_image_topic)"/>
-      <arg name="odom_frame" value="$(arg odom_frame)"/>
-      <arg name="initial_pose_x" value="15"/>
-      <arg name="initial_pose_y" value="9"/>
-      <arg name="initial_pose_a" value="0"/>
-    </include>
+        <!-- Localization -->
+        <include file="$(find oscar_navigation)/launch/localization/amcl.launch">
+            <!-- TOPICS -->
+            <arg name="scan_topic" value="$(arg scan_topic)" />
+            <arg name="map_topic" value="$(arg map_topic)" />
+            <!-- FRAMES -->
+            <arg name="scan_frame" value="$(arg scan_frame)" />
+            <arg name="odom_frame" value="$(arg odom_frame)" />
+            <arg name="base_frame" value="$(arg base_frame)" />
+            <!-- MISC -->
+            <arg name="initial_pose_x" value="15" />
+            <arg name="initial_pose_y" value="9" />
+            <arg name="initial_pose_a" value="0" />
+        </include>
 
-    <!-- Generating navigation goals -->
-    <!-- TODO make and add node to generate navigation goals -->
+        <!-- Generating navigation goals -->
+        <!-- TODO make and add node to generate navigation goals -->
 
-    <!-- Converting navigation goals to twist messages -->
-    <include file="$(find oscar_navigation)/launch/move_base.launch" >
-      <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
-    </include>
-  </group>
+        <!-- Converting navigation goals to twist messages -->
+        <include file="$(find oscar_navigation)/launch/move_base.launch">
+            <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
+        </include>
+    </group>
 
-  <!-- ===================================================================== -->
-  <!-- ======================= Garbage classification ====================== -->
-  <!-- ===================================================================== -->
+    <!-- ===================================================================== -->
+    <!-- ======================= Garbage classification ====================== -->
+    <!-- ===================================================================== -->
 
-  <group if="$(arg classification)" >
-
-  </group>
-
-
-
+    <group if="$(arg classification)">
+      <node name="image_classify_service" pkg="oscar_garbage_classifier" type="classify_service.py" output="screen" />
+    </group>
 
 </launch>

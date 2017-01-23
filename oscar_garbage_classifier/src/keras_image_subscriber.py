@@ -36,6 +36,8 @@ class KerasImageSubscriber:
 
         # frame = misc.imread('/mnt/data/Development/keras-squeezenet/images/cat.jpeg', mode='RGB')
         frame = self.cv_bridge.imgmsg_to_cv2(img) #, desired_encoding='8UC3')
+        b, g, r = cv2.split(frame)
+        frame = cv2.merge([r, g, b])
 
         height = frame.shape[0]
         width = frame.shape[1]
@@ -50,30 +52,20 @@ class KerasImageSubscriber:
         # Crop the square containing the full image.
         cropped_frame = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
-        # ts = int(time.time())
-        # cv2.imwrite('/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_webcam_cv2_output/bottles/bottle-%s.jpg' % (ts), cropped_frame)
-        # print("write img")
-
-        # print "Frame: "
         # print type(frame)
         # print frame
 
         resized_frame = cv2.resize(cropped_frame, (self.input_shape[0], self.input_shape[1]))
-
         rotated_frame = cv2.warpAffine(resized_frame, self.rotation_matrix, (self.input_shape[0], self.input_shape[1]))
         # image = frame.astype('float')
         fr = rotated_frame
-        image = fr.astype(np.float64) / float(255)
-        # image /= 255.
+        fr = cv2.fastNlMeansDenoisingColored(fr, h=5, hColor=7, templateWindowSize=7, searchWindowSize=21)
+        image = fr.astype('float')
+        image /= 255.
 
-        aux = copy.copy(image)
-        image[:, :, 0] = aux[:, :, 2]
-        image[:, :, 2] = aux[:, :, 0]
-        # cv2.imwrite('/tmp/test2.jpg', image)
-        # print "Image: "
-        # print type(image)
-        # print image
-
+        # aux = copy.copy(image)
+        # image[:, :, 0] = aux[:, :, 2]
+        # image[:, :, 2] = aux[:, :, 0]
 
         # Remove image mean
         # image[:, :, 0] -= 104.006

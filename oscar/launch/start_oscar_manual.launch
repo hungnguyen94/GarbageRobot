@@ -1,0 +1,15 @@
+<launch>
+    <include file="$(find oscar)/launch/start_oscar.launch">
+        <arg name="navigation_auto" value="false" />
+        <arg name="navigation_goal_gen" value="false" />
+        <arg name="classification" value="false"/>
+        <arg name="kinect_connected" value="false"/>
+        <arg name="sonars_connected" value="false"/>
+        <arg name="base_controller" value="true"/>
+        <arg name="simulation" value="false"/>
+        <arg name="map_creation" value="false"/>
+        <arg name="state_controller" value="false"/>
+    </include>
+
+    <!-- TODO add way to easily manipulate the different parts of the robot -->
+</launch>

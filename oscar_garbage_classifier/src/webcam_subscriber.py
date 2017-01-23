@@ -6,6 +6,7 @@ import sys
 import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+import cv2
 
 class image_subscriber: 
 
@@ -16,7 +17,12 @@ class image_subscriber:
   def callback(self, img): 
     try:
       cv_image = self.cv_bridge.imgmsg_to_cv2(img)
-      cv2.imshow("Wall-A", cv_image)
+      # b, g, r = cv2.split(cv_image)
+      # frame = cv2.merge([r, g, b])
+      # frame = cv2.fastNlMeansDenoisingColored(frame, h=5, hColor=7, templateWindowSize=5, searchWindowSize=7)
+      frame = cv_image
+
+      cv2.imshow("Wall-A", frame)
       cv2.waitKey(1)
     except CvBridgeError as e:
       print(e)

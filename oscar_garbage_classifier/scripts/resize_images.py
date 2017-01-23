@@ -5,6 +5,7 @@ import cv2
 img_x = 300
 img_y = 300
 
+
 def resize_image(img_path):
     # Load image with 3 channel colors
     img = cv2.imread(img_path, flags=-1)
@@ -42,8 +43,8 @@ if __name__ == '__main__':
             else:
                 raise
 
-    images_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_detector/test'
-    output_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training_detector'
+    images_dir = '/home/hung/Pictures/Webcam'
+    output_dir = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/images/training-21_jan'
 
     for subdir, dirs, files in os.walk(images_dir):
         for f in files:

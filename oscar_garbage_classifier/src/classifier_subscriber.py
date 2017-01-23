@@ -9,18 +9,18 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from squeezenetv1_1 import SqueezeNet
 import keras.backend as K
-import classify_client
+from oscar_garbage_classifier.srv import ClassifyImage, Sort
 import copy
+import time
+
 
 class ClassifierSubscriber:
     def __init__(self):
-        self.weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
         self.detector_weights_file = '/mnt/data/Development/ros/catkin_ws/src/oscar_garbage_classifier/models/squeezenet_detector_weights_100x100.50-loss_0.00011-acc_1.00000.h5'
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
-        # self.classes = ['bottles', 'cans', 'cups', 'other']
-        self.detector_classes = ['empty', 'occupied']
+        self.detector_classes = ['occupied', 'empty']
 
         self.detect_graph = tf.Graph()
         self.detect_sess = tf.Session(graph=self.detect_graph)
@@ -32,18 +32,19 @@ class ClassifierSubscriber:
             self.model = SqueezeNet(2, self.detect_input_shape[0], self.detect_input_shape[1], self.detect_input_shape[2])
             self.model.load_weights(self.detector_weights_file, by_name=True)
 
-        self.sub = rospy.Subscriber("image_topic", Image, self.classify)
+        self.sub = rospy.Subscriber("image_topic", Image, self.detect)
+        self.invoke_timeout = time.time()
 
-
-    def classify(self, img):
+    def process_image(self, imgmsg):
         """
-        Callback function that classifies the image.
-        :param img:  Image to be classified
-        :return:  Class of the image.
+        Function to process the image in the correct format for the classifier.
+        :param imgmsg: Img message
+        :return: Image
         """
-
-        # frame = misc.imread('/mnt/data/Development/keras-squeezenet/images/cat.jpeg', mode='RGB')
-        frame = self.cv_bridge.imgmsg_to_cv2(img) #, desired_encoding='8UC3')
+        frame = self.cv_bridge.imgmsg_to_cv2(imgmsg) #, desired_encoding='8UC3')
+        # Cv2 uses bgr by default. Convert bgr to rgb.
+        b, g, r = cv2.split(frame)
+        frame = cv2.merge([r, g, b])
 
         height = frame.shape[0]
         width = frame.shape[1]
@@ -59,29 +60,53 @@ class ClassifierSubscriber:
         cropped_frame = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
         resized_frame = cv2.resize(cropped_frame, (self.detect_input_shape[0], self.detect_input_shape[1]))
 
-        rotated_frame = cv2.warpAffine(resized_frame, self.rotation_matrix, (self.detect_input_shape[0], self.detect_input_shape[1]))
-        fr = rotated_frame
-        image = fr.astype(np.float64) / float(255)
-        # image /= 255.
+        # Denoise image.
+        fr = resized_frame
+        fr = cv2.fastNlMeansDenoisingColored(fr, h=5, hColor=7, templateWindowSize=7, searchWindowSize=21)
+        image = fr.astype('float32')
+        image /= 255.
+
+        # Rotate image 90 degrees
+        image = cv2.warpAffine(image, self.rotation_matrix, (self.detect_input_shape[0], self.detect_input_shape[1]))
 
         # Change BGR to RGB
-        aux = copy.copy(image)
-        image[:, :, 0] = aux[:, :, 2]
-        image[:, :, 2] = aux[:, :, 0]
+        # aux = copy.copy(image)
+        # image[:, :, 0] = aux[:, :, 2]
+        # image[:, :, 2] = aux[:, :, 0]
 
         image = np.expand_dims(image, axis=0)
+        return image
 
+    def detect(self, imgmsg):
+        """
+        Callback function that classifies the image.
+        :param imgmsg:  Image to be classified
+        :return:  Class of the image.
+        """
+        image = self.process_image(imgmsg)
         with self.detect_graph.as_default():
             res = self.model.predict(image)
 
         results = res[0]
 
-        if results[1] > 0.50:
-            # Img is rotated and resized in the service.
-            class_result = classify_client.classify_image(img)
-            print(class_result)
-            # classify_client.invoke_sorter(classify_client.classes[class_result])
-            # print("hoi")
+        # If sorter is occupied, run the classifier
+        if results[0] > 0.15:
+            if time.time() >= self.invoke_timeout:
+                self.invoke_timeout = time.time() + 15
+                # Img is rotated and resized in the service.
+                rospy.wait_for_service('image_classify')
+                image_classify = rospy.ServiceProxy('image_classify', ClassifyImage)
+                class_result = image_classify(imgmsg)
+                print(class_result)
+                rospy.wait_for_service('invoke_sorter')
+                invoke_sorter = rospy.ServiceProxy('invoke_sorter', Sort)
+                sort_result = invoke_sorter(class_result.prediction)
+                print(sort_result)
+                self.invoke_timeout = time.time() + 7
+            else:
+                print("Occupied but busy")
+        else:
+            print("Empty")
 
         for i in xrange(len(results)):
             clazz = self.detector_classes[i]
@@ -90,12 +115,11 @@ class ClassifierSubscriber:
         print("")
 
 
-
 if __name__ == '__main__':
 
     print("")
     img_sub = ClassifierSubscriber()
-    rospy.init_node("classifier_subscriber", anonymous=True)
+    rospy.init_node("classifier_subscriber", anonymous=False)
 
     try:
         rospy.spin()

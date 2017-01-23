@@ -10,20 +10,29 @@ import cv2
 import numpy as np
 import rospy
 import copy
+import os
+import pyttsx
 
+weights = rospy.get_param("squeezenet_classifier_weightsfile",
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.088-loss_0.09553-acc_0.98025.h5')
+classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
+categories = ['cups', 'pmd', 'other']
+class_to_category_index = {0: 1, # Bottles to pmd
+                           1: 1, # cans to pmd
+                           2: 0, # cups to cups
+                           3: 2, # cups_wrong to other
+                           4: 2} # other to other
 
-weights = '../models/squeezenet_webcam_weights_300x300.103-loss_0.00108-acc_1.00000.h5'
-classes = ['bottles', 'cans', 'cups', 'other']
+input_width = rospy.get_param('classifier_image_width', 300)
+input_height = rospy.get_param('classifier_image_height', 300)
 
 sq_graph = tf.Graph()
 sq_sess = tf.Session(graph=sq_graph)
 K.set_session(sq_sess)
 
 squeezenet = None
-input_width = 300
-input_height = 300
-
 rotation_matrix = cv2.getRotationMatrix2D((input_width/2, input_height/2), 90, 1)
+
 
 def load_squeezenet():
     """
@@ -43,10 +52,10 @@ def classify(img):
     """
     Classify the image using SqueezeNet v1.1 convNet.
     The convNet is trained to output 4 classes
-    Images are classified in 3 categories: bottles, cans and cups.
+    Images are classified in 4 categories: bottles, cans, cups, other.
 
     :param img: Input image with shape (1, 227, 227, 3)
-    :return: Integer representing 1 of 3 classes.
+    :return: Integer representing 1 of 4 classes.
     """
     with sq_graph.as_default():
         if squeezenet is None:
@@ -54,7 +63,7 @@ def classify(img):
         result = squeezenet.predict(img)[0]
 
     top = result.argsort()[-1::][0]
-    rospy.loginfo('Top result of 6 classes: %s with confidence %s' % (classes[top], result[top]))
+    rospy.loginfo('Top result of %d classes: %s with confidence %s' % (len(classes), classes[top], result[top]))
 
     return top
 
@@ -62,12 +71,14 @@ def classify(img):
 def preprocess_image(img):
     """
     Preprocess the image before passing it to SqueezeNet.
-    Resize to (227, 227, 3) and maintain aspect ratio by adding black borders.
+    Resize to (300, 300, 3) and maintain aspect ratio by adding black borders.
     Add an extra dimension because SqueezeNet expects an array of images as input.
 
     :param img: RGB image with shape (height, width, 3)
     :return: Numpy array containing image with shape (1, 227, 227, 3)
     """
+    b, g, r = cv2.split(img)
+    img = cv2.merge([r, g, b])
 
     height = img.shape[0]
     width = img.shape[1]
@@ -83,14 +94,16 @@ def preprocess_image(img):
     cropped_img = padded_img[center_y - offset: center_y + offset, center_x - offset: center_x + offset]
 
     # Resize image to 300, 300 as Squeezenet only accepts this format.
-    resized_image = cv2.resize(cropped_img, (input_width, input_height)).astype('float32')
-    resized_image /= 255
-    
+    resized_image = cv2.resize(cropped_img, (input_width, input_height))
+    image = cv2.fastNlMeansDenoisingColored(resized_image, h=3, hColor=3, templateWindowSize=3, searchWindowSize=9)
+    image = image.astype('float32')
+    image /= 255.
+
     # Rotate image 90 degrees
-    image = cv2.warpAffine(resized_image, rotation_matrix, (input_width, input_height))
-    aux = copy.copy(image)
-    image[:, :, 0] = aux[:, :, 2]
-    image[:, :, 2] = aux[:, :, 0]
+    image = cv2.warpAffine(image, rotation_matrix, (input_width, input_height))
+    # aux = copy.copy(image)
+    # image[:, :, 0] = aux[:, :, 2]
+    # image[:, :, 2] = aux[:, :, 0]
 
     image = np.expand_dims(image, axis=0)
     return image
@@ -101,14 +114,26 @@ def handle_service(request):
     Handle the request to classify an image. Converts the requested image to a cv2 image.
     Preprocesses the image and runs it through the model.
     :param request: ClassifyImage request.
-    :return: An integer representing one of the three classes.
+    :return: An integer representing one of the classes.
     """
 
     img = CvBridge().imgmsg_to_cv2(request.msg)
     img = preprocess_image(img)
     result = classify(img)
+    category = class_to_category_index[result]
+    speech = {0: "I like bottles",
+              1: "Oh yes, I CAN",
+              2: "Two girls, one cup",
+              3: "Two girls, wrong cup",
+              4: "What the hell is that"}
+
+    tts_engine = pyttsx.init()
+    tts_engine.say(speech[result])
+    tts_engine.runAndWait()
+
     rospy.loginfo('Classified as %s' % classes[result])
-    return result
+    rospy.loginfo('Category is %s' % categories[category])
+    return category
 
 
 def image_classify_service():
@@ -119,5 +144,7 @@ def image_classify_service():
 
 
 if __name__ == '__main__':
+    if squeezenet is None:
+        load_squeezenet()
     image_classify_service()
 

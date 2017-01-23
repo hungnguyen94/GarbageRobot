@@ -39,7 +39,7 @@ train_datagen = ImageDataGenerator(
         rotation_range=1.,
         height_shift_range=0.05,
         samplewise_std_normalization=True,
-        #zca_whitening=True,
+        zca_whitening=False,
         horizontal_flip=False,
         vertical_flip=True,
         fill_mode='constant')
@@ -47,7 +47,7 @@ train_datagen = ImageDataGenerator(
 test_datagen = ImageDataGenerator(
         rescale=1./255,
         samplewise_std_normalization=True,
-        #zca_whitening=True,
+        zca_whitening=False,
         fill_mode='constant')
         
 def set_correct_classes(arr):
