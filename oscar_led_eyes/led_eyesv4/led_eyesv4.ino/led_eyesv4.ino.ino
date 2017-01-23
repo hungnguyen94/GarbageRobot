@@ -4,10 +4,11 @@
 #define clk 9
 #define reset 8
 
-#define pin0 10
-#define pin1 11
-#define pin2 12
-#define pin3 13
+#define pin_bumper 10
+#define pin_full1 11
+#define pin_full2 12
+#define pin_full3 13
+#define pin_sort 7
 
 #define resetDelay 5
 
@@ -511,10 +512,11 @@ void setup() {
 
   pinMode(clk, OUTPUT);
   pinMode(reset, OUTPUT);
-  pinMode(pin0, INPUT);
-  pinMode(pin1, INPUT);
-  pinMode(pin2, INPUT);
-  pinMode(pin3, INPUT);
+  pinMode(pin_bumper, INPUT);
+  pinMode(pin_full1, INPUT);
+  pinMode(pin_full2, INPUT);
+  pinMode(pin_full3, INPUT);
+  pinMode(pin_sort, INPUT);
   digitalWrite(reset, HIGH);
   delayMicroseconds(5);
   digitalWrite(reset, LOW);
@@ -542,12 +544,6 @@ void animateEyes2(int (*image)[8], frame *frames, int frameLength) {
 
 void loop() {
 
-  //---------------
-  //-- pin0 -> 10 = bumper (angry)
-  //-- pin1 -> 11 = sorting feedback (looking)
-  //-- pin2 -> 12 = full bin (die)
-  //-- pin3 -> 
-
   number = random(100);
 
   if(number > 90){
@@ -558,13 +554,13 @@ void loop() {
       state = 5;
     }
   } else if(state == 0) {
-    if(digitalRead(pin0) == HIGH) {
+    if(digitalRead(pin_bumper) == LOW) {
       state = 1;
       angry(0);
-    } else if(digitalRead(pin1) == HIGH) {
+    } else if(digitalRead(pin_sort) == HIGH) {
       state = 2;
       happiness(0);
-    } else if(digitalRead(pin2) == LOW) {
+    } else if(digitalRead(pin_full1) == LOW or digitalRead(pin_full2) == LOW or digitalRead(pin_full3) == LOW) {
       state = 3;
       die(0);
     } //else if(digitalRead(pin3) == HIGH) {
@@ -575,7 +571,7 @@ void loop() {
   switch(state) {
     case 1:
       // Angry state
-      if(digitalRead(pin0) == LOW) {
+      if(digitalRead(pin_bumper) == LOW) {
         angry(2);
         state = 0;
       } else {
@@ -585,7 +581,7 @@ void loop() {
       break;
     case 2:
       // Happy state
-      if(digitalRead(pin1) == LOW) {
+      if(digitalRead(pin_sort) == LOW) {
         happiness(2);
         state = 0;
       } else {
@@ -595,7 +591,7 @@ void loop() {
       break;
     case 3:
       // Die state
-      if(digitalRead(pin2) == HIGH) {
+      if(digitalRead(pin_full1) == HIGH and digitalRead(pin_full2) == HIGH and digitalRead(pin_full3) == HIGH) {
         die(2);
         state = 0;
       } else {
@@ -603,19 +599,19 @@ void loop() {
         die(1);
       }
       break;
-    case 4:
-      // Look around State
-      if( digitalRead(pin1) == LOW){
-        state = 2;
-        happiness(0);
-      }//else if(digitalRead(pin3) == HIGH) {
-        //state = 0;
-      //} 
-      else {
-        // Look around
-        looking();
-      }
-      break;
+//    case 4:
+//      // Look around State
+//      if( digitalRead(pin1) == LOW){
+//        state = 2;
+//        happiness(0);
+//      }//else if(digitalRead(pin3) == HIGH) {
+//        //state = 0;
+//      //} 
+//      else {
+//        // Look around
+//        looking();
+//      }
+//      break;
     case 5:
       state = tmp;
       blinking();
