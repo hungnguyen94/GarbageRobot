@@ -562,7 +562,8 @@ void loop() {
       state = 1;
       angry(0);
     } else if(digitalRead(pin1) == HIGH) {
-      state = 4;
+      state = 2;
+      happiness(0);
     } else if(digitalRead(pin2) == LOW) {
       state = 3;
       die(0);
