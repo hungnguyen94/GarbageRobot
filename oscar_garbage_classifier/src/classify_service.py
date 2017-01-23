@@ -14,8 +14,8 @@ import os
 import pyttsx
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
-                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.088-loss_0.09553-acc_0.98025.h5')
-classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.h5')
+classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'other'])
 categories = ['cups', 'pmd', 'other']
 class_to_category_index = {0: 1, # Bottles to pmd
                            1: 1, # cans to pmd
