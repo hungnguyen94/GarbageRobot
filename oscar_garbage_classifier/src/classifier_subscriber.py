@@ -23,7 +23,7 @@ class ClassifierSubscriber:
         self.detect_input_shape = (100, 100, 3)
         self.model = None
         self.cv_bridge = CvBridge()
-        self.detector_classes = ['occupied', 'empty']
+        self.detector_classes = ['empty', 'occupied']
 
         self.detect_graph = tf.Graph()
         self.detect_sess = tf.Session(graph=self.detect_graph)
@@ -87,7 +87,7 @@ class ClassifierSubscriber:
         results = res[0]
 
         # If sorter is occupied, run the classifier
-        if results[0] > 0.15:
+        if results[1] > 0.15:
             if time.time() >= self.invoke_timeout:
 		self.pub.publish(Empty())
                 self.invoke_timeout = time.time() + 15
