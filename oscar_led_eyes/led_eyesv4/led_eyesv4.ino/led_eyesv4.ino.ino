@@ -680,15 +680,17 @@ void drawEyes(int eyeShapeLeft[], int eyeShapeRight[]) {
   reset_on();
   for (int i = 0; i < 8; i++) {
     trans(eyeShapeLeft[i],eyeShapeRight[i]);
-    delayMicroseconds(1000);
-    if (i >= 7) {
-      trans(eyeShapeLeft[i],eyeShapeRight[0]);
-      //delayMicroseconds(10);
-    }
-    else {
-      trans(eyeShapeLeft[i],eyeShapeRight[i+1]);
-      //delayMicroseconds(10);
-    }
+    delayMicroseconds(700);
+    trans_zero();
+    delayMicroseconds(100);
+//    if (i >= 7) {
+//      trans(eyeShapeLeft[i],eyeShapeRight[0]);
+//      //delayMicroseconds(10);
+//    }
+//    else {
+//      trans(eyeShapeLeft[i],eyeShapeRight[i+1]);
+//      //delayMicroseconds(10);
+//    }
     clock_on();
   }
 };
@@ -703,6 +705,20 @@ void trans(int left, int right){
   Wire.beginTransmission(0x20);
   Wire.write(0x13);
   Wire.write(left); // set all of port B to outputs
+  Wire.endTransmission();
+  
+};
+
+void trans_zero(){
+
+  Wire.beginTransmission(0x20);
+  Wire.write(0x12);
+  Wire.write(0x00); // Set output of register A to all zeros
+  Wire.endTransmission();
+  
+  Wire.beginTransmission(0x20);
+  Wire.write(0x13);
+  Wire.write(0x00); // Set output of register B to all zeros
   Wire.endTransmission();
   
 };
