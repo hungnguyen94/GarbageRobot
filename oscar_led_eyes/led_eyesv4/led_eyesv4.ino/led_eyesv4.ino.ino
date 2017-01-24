@@ -9,6 +9,7 @@
 #define pin_full2 12
 #define pin_full3 13
 #define pin_sort 7
+#define pin_mouth 6
 
 #define resetDelay 5
 
@@ -517,6 +518,7 @@ void setup() {
   pinMode(pin_full2, INPUT);
   pinMode(pin_full3, INPUT);
   pinMode(pin_sort, INPUT);
+  pinMode(pin_mouth,INPUT);
   digitalWrite(reset, HIGH);
   delayMicroseconds(5);
   digitalWrite(reset, LOW);
@@ -542,36 +544,57 @@ void animateEyes2(int (*image)[8], frame *frames, int frameLength) {
   }
 }
 
-void loop() {
-
-  number = random(100);
-
-  if(number > 90){
-    if(state == 5){
-      state = tmp;
-    } else {
-      tmp = state;
-      state = 5;
+void animateEyes3(int (*image)[8], frame *frames, int frameLength) {
+  for (int i = 0; i < frameLength; i++) {
+    frame f = frames[i];
+    drawExpression(f, image);
+    if(getState()!=0) {
+      return;
     }
-  } else if(state == 0) {
+  }
+}
+
+void winkwink() {
+  number = random(100);
+  if(number > 99){
+    blinking();
+  } 
+}
+
+int getState() {
+  if(digitalRead(pin_bumper) == LOW) {
+      return 1;
+    } else if(digitalRead(pin_sort) == HIGH) {
+      return 2;
+    } else if(digitalRead(pin_full1) == LOW or digitalRead(pin_full2) == LOW or digitalRead(pin_full3) == LOW) {
+      return 3;
+    } 
+}
+
+void loop() {
+  if(state == 0) {
     if(digitalRead(pin_bumper) == LOW) {
       state = 1;
       angry(0);
-    } else if(digitalRead(pin_sort) == HIGH) {
+    } else if(digitalRead(pin_sort) == HIGH or digitalRead(pin_mouth)==LOW) {
       state = 2;
       happiness(0);
+      for(int i=0;i<185;i++) {
+        happiness(1);
+      }
     } else if(digitalRead(pin_full1) == LOW or digitalRead(pin_full2) == LOW or digitalRead(pin_full3) == LOW) {
       state = 3;
       die(0);
     } //else if(digitalRead(pin3) == HIGH) {
       //state = 4;
     //}
+    winkwink();
   }
 
   switch(state) {
     case 1:
       // Angry state
-      if(digitalRead(pin_bumper) == LOW) {
+      if(digitalRead(pin_bumper) == HIGH) {
         angry(2);
         state = 0;
       } else {
@@ -581,7 +604,7 @@ void loop() {
       break;
     case 2:
       // Happy state
-      if(digitalRead(pin_sort) == LOW) {
+      if(digitalRead(pin_sort) == LOW and digitalRead(pin_mouth)==HIGH) {
         happiness(2);
         state = 0;
       } else {
@@ -612,10 +635,6 @@ void loop() {
 //        looking();
 //      }
 //      break;
-    case 5:
-      state = tmp;
-      blinking();
-      break;
     default:
       normal();
       break;      
@@ -639,7 +658,7 @@ void normal(){
 };
 
 void blinking(){
-  animateEyes2(blinkEyes, blinkFrames, sizeof(blinkFrames)/sizeof(*blinkFrames));
+  animateEyes3(blinkEyes, blinkFrames, sizeof(blinkFrames)/sizeof(*blinkFrames));
 };
 
 void happiness(int p){
@@ -680,14 +699,14 @@ void drawEyes(int eyeShapeLeft[], int eyeShapeRight[]) {
   reset_on();
   for (int i = 0; i < 8; i++) {
     trans(eyeShapeLeft[i],eyeShapeRight[i]);
-    delayMicroseconds(1000);
+    delayMicroseconds(800);
     if (i >= 7) {
       trans(eyeShapeLeft[i],eyeShapeRight[0]);
-      //delayMicroseconds(10);
+//      delayMicroseconds(100);
     }
     else {
       trans(eyeShapeLeft[i],eyeShapeRight[i+1]);
-      //delayMicroseconds(10);
+//      delayMicroseconds(100);
     }
     clock_on();
   }
