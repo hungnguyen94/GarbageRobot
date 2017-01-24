@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division, print_function
-from squeezenetv1_1 import SqueezeNet
+from squeezenetv1_1_res import SqueezeNet
 import tensorflow as tf
 import keras.backend as K
 from oscar_garbage_classifier.srv import ClassifyImage
@@ -14,7 +14,7 @@ import os
 import pyttsx
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
-                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_webcam_weights_300x300.h5')
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_res_webcam_weights_300x300.h5')
 classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
 categories = ['cups', 'pmd', 'other']
 class_to_category_index = {0: 1, # Bottles to pmd
