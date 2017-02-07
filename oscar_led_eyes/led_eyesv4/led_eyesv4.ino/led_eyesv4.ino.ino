@@ -556,7 +556,7 @@ void animateEyes3(int (*image)[8], frame *frames, int frameLength) {
 
 void winkwink() {
   number = random(100);
-  if(number > 99){
+  if(number > 95){
     blinking();
   } 
 }
