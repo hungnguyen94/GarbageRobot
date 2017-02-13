@@ -4,6 +4,7 @@ from __future__ import division, print_function
 from squeezenetv1_1_res import SqueezeNet
 import tensorflow as tf
 import keras.backend as K
+from keras.preprocessing.image import load_img, img_to_array
 from oscar_garbage_classifier.srv import ClassifyImage
 from cv_bridge import CvBridge
 import cv2
@@ -14,7 +15,7 @@ import os
 import pyttsx
 
 weights = rospy.get_param("squeezenet_classifier_weightsfile",
-                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet_res_	webcam_weights_300x300.h5')
+                          os.path.dirname(os.path.abspath(__file__)) + '/../models/squeezenet-res-12feb-_webcam_weights_224x224.098-loss_0.11065-acc_0.98329.h5')
 classes = rospy.get_param('classifier_classes', ['bottles', 'cans', 'cups', 'cups_wrong', 'other'])
 categories = ['cups', 'pmd', 'other']
 class_to_category_index = {0: 1, # Bottles to pmd
@@ -23,8 +24,8 @@ class_to_category_index = {0: 1, # Bottles to pmd
                            3: 2, # cups_wrong to other
                            4: 2} # other to other
 
-input_width = rospy.get_param('classifier_image_width', 300)
-input_height = rospy.get_param('classifier_image_height', 300)
+input_width = rospy.get_param('classifier_image_width', 224)
+input_height = rospy.get_param('classifier_image_height', 224)
 
 sq_graph = tf.Graph()
 sq_sess = tf.Session(graph=sq_graph)
@@ -32,6 +33,7 @@ K.set_session(sq_sess)
 
 squeezenet = None
 rotation_matrix = cv2.getRotationMatrix2D((input_width/2, input_height/2), 90, 1)
+images_mean = img_to_array(load_img(os.path.dirname(os.path.abspath(__file__)) + '/mean.jpg', target_size=(width, height))) / 255.
 
 
 def load_squeezenet():
@@ -103,6 +105,8 @@ def preprocess_image(img):
 
     # Rotate image 90 degrees
     image = cv2.warpAffine(image, rotation_matrix, (input_width, input_height))
+    # Subtract mean to center data
+    image -= images_mean
     # aux = copy.copy(image)
     # image[:, :, 0] = aux[:, :, 2]
     # image[:, :, 2] = aux[:, :, 0]
